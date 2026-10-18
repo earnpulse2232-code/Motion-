@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#f8fafc">
+    <title>Physics - Motion (Lecture 1)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg-main: #f8fafc; --bg-card: #ffffff; --primary: #2563eb; --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff; --text-dark: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0;
+            --green: #10b981; --green-light: #ecfdf5; --red: #ef4444; --red-light: #fef2f2;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-main); color: var(--text-dark); min-height: 100dvh; font-size: 15px; line-height: 1.5; overflow-x: hidden; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+        .hidden { display: none !important; }
+        .start-screen { position: fixed; inset: 0; background: var(--bg-main); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .start-card { width: 100%; max-width: 440px; background: var(--bg-card); border-radius: 24px; padding: 36px 28px; box-shadow: var(--shadow-lg); text-align: center; border: 1px solid var(--border-color); }
+        .brand-icon { width: 60px; height: 60px; background: var(--primary-light); color: var(--primary); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 16px; }
+        .start-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .start-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+        .mode-btn { display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px; background: #fff; border: 1.5px solid var(--border-color); border-radius: 16px; text-align: left; margin-bottom: 12px; transition: all 0.2s ease; }
+        .mode-btn:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
+        .mode-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .mode-icon.quiz { background: #dbeafe; color: #2563eb; }
+        .mode-icon.test { background: #d1fae5; color: #059669; }
+        .mode-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .mode-info-txt { font-size: 12px; color: var(--text-muted); }
+        .quiz-app { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        .quiz-header { flex-shrink: 0; background: #fff; border-bottom: 1px solid var(--border-color); padding: 12px 18px; }
+        .quiz-header-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .hdr-brand { font-weight: 700; font-size: 15px; }
+        .hdr-timer { padding: 6px 14px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 20px; font-family: monospace; font-weight: 700; color: var(--primary); }
+        .hdr-btn { width: 38px; height: 38px; border-radius: 10px; background: #fff; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; }
+        .quiz-main { flex: 1; overflow-y: auto; max-width: 900px; width: 100%; margin: 0 auto; padding: 24px 16px; }
+        .q-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); }
+        .q-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .q-num-badge { padding: 5px 12px; background: var(--primary-light); color: var(--primary); border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .lang-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border-color); font-size: 12px; font-weight: 600; background: #fff; display: inline-flex; align-items: center; gap: 6px; }
+        .q-text { font-size: 16px; font-weight: 600; line-height: 1.6; margin-bottom: 22px; white-space: pre-line; }
+        .opts { display: flex; flex-direction: column; gap: 11px; }
+        .opt { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: #fff; border: 1.5px solid var(--border-color); border-radius: 14px; cursor: pointer; transition: all 0.15s ease; }
+        .opt:hover:not(.locked) { border-color: var(--primary); background: #f8fafc; }
+        .opt.selected { border-color: var(--primary); background: var(--primary-light); }
+        .opt.correct { border-color: var(--green); background: var(--green-light); }
+        .opt.wrong { border-color: var(--red); background: var(--red-light); }
+        .opt.locked { cursor: default; }
+        .opt-letter { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
+        .opt.selected .opt-letter { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .opt.correct .opt-letter { background: var(--green); color: #fff; border-color: var(--green); }
+        .opt.wrong .opt-letter { background: var(--red); color: #fff; border-color: var(--red); }
+        .opt-text { flex: 1; font-weight: 600; }
+        .opt-tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+        .opt.correct .opt-tag { background: var(--green); color: #fff; }
+        .opt.wrong .opt-tag { background: var(--red); color: #fff; }
+        .sol-box { margin-top: 20px; padding: 16px; background: #f8fafc; border-left: 4px solid var(--primary); border-radius: 12px; }
+        .sol-head { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+        .quiz-nav { flex-shrink: 0; background: #fff; border-top: 1px solid var(--border-color); padding: 12px 18px; }
+        .quiz-nav-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .nav-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; }
+        .nav-btn.prev { background: #fff; border: 1px solid var(--border-color); }
+        .nav-btn.prev:disabled { opacity: 0.4; cursor: not-allowed; }
+        .nav-btn.submit { background: var(--green-light); color: #065f46; border: 1px solid #a7f3d0; }
+        .nav-btn.next { background: var(--primary); color: #fff; }
+        .palette-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: none; }
+        .palette-overlay.open { display: block; }
+        .palette-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: min(340px, 85vw); background: #fff; z-index: 160; display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.25s; }
+        .palette-drawer.open { transform: translateX(0); }
+        .pal-head { padding: 18px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+        .pal-grid { flex: 1; overflow-y: auto; padding: 16px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; align-content: start; }
+        .pal-btn { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border-color); background: #f8fafc; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .pal-btn.answered { background: var(--green); color: #fff; border-color: var(--green); }
+        .pal-btn.current { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 170; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { width: 100%; max-width: 420px; background: #fff; border-radius: 20px; padding: 28px; text-align: center; }
+        .modal-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 22px; }
+        .modal-stat { background: #f8fafc; border-radius: 12px; padding: 14px; border: 1px solid var(--border-color); }
+        .modal-stat-num { font-size: 24px; font-weight: 800; }
+        .modal-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .modal-btn.confirm { background: var(--primary); color: #fff; }
+        .modal-btn.cancel { background: #f1f5f9; }
+        .results-screen { position: fixed; inset: 0; background: var(--bg-main); z-index: 180; display: none; overflow-y: auto; padding: 30px 16px 60px; }
+        .results-screen.open { display: block; }
+        .results-box { max-width: 600px; margin: 0 auto; text-align: center; }
+        .res-score-card { background: #0f172a; color: #fff; border-radius: 20px; padding: 28px; margin: 20px 0; }
+        .res-score-val { font-size: 54px; font-weight: 800; }
+        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+        .res-item { background: #fff; border-radius: 14px; padding: 16px; border: 1px solid var(--border-color); }
+        .res-item-val { font-size: 22px; font-weight: 700; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px); background: #0f172a; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 300; opacity: 0; transition: all 0.25s; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="start-screen" id="startScreen">
+        <div class="start-card">
+            <div class="brand-icon"><i class="fas fa-gauge-high"></i></div>
+            <h1 class="start-title">Physics - Motion</h1>
+            <p class="start-desc">Speed, Velocity, Acceleration & Graphs (Lecture 1)</p>
+            <button class="mode-btn" onclick="startApp('quiz')">
+                <div class="mode-icon quiz"><i class="fas fa-bolt"></i></div>
+                <div><div class="mode-name">Practice Mode</div><div class="mode-info-txt">Instant correct/wrong answer and explanations.</div></div>
+            </button>
+            <button class="mode-btn" onclick="startApp('test')">
+                <div class="mode-icon test"><i class="fas fa-clock"></i></div>
+                <div><div class="mode-name">Exam Mode</div><div class="mode-info-txt">Mock exam with timer and score summary.</div></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="quiz-app hidden" id="quizApp">
+        <header class="quiz-header">
+            <div class="quiz-header-inner">
+                <button class="hdr-btn" onclick="openPalette()"><i class="fas fa-th-large"></i></button>
+                <div class="hdr-brand">Motion - Lecture 1</div>
+                <div class="hdr-timer"><i class="fas fa-stopwatch"></i> <span id="timerText">00:00</span></div>
+            </div>
+        </header>
+
+        <main class="quiz-main" id="quizMain"></main>
+
+        <nav class="quiz-nav" id="quizNav">
+            <div class="quiz-nav-inner">
+                <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="nav-btn submit" onclick="openSubmitModal()"><i class="fas fa-paper-plane"></i> Submit</button>
+                <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()"><span id="nextLabel">Next</span> <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </nav>
+    </div>
+
+    <div class="palette-overlay" id="paletteOverlay" onclick="closePalette()"></div>
+    <aside class="palette-drawer" id="paletteDrawer">
+        <div class="pal-head"><span>Questions</span><button onclick="closePalette()"><i class="fas fa-times"></i></button></div>
+        <div class="pal-grid" id="paletteGrid"></div>
+    </aside>
+
+    <div class="modal-overlay" id="submitModal">
+        <div class="modal-box">
+            <h3>Submit Test?</h3>
+            <div class="modal-stats-grid">
+                <div class="modal-stat"><div class="modal-stat-num" id="modalAttempted" style="color:var(--green)">0</div><div>Attempted</div></div>
+                <div class="modal-stat"><div class="modal-stat-num" id="modalUnattempted" style="color:var(--text-muted)">0</div><div>Unattempted</div></div>
+            </div>
+            <button class="modal-btn confirm" onclick="confirmSubmit()">Yes, Finish</button>
+            <button class="modal-btn cancel" onclick="closeSubmitModal()">Resume</button>
+        </div>
+    </div>
+
+    <div class="results-screen" id="resultsScreen"><div class="results-box" id="resultsInner"></div></div>
+    <div class="toast" id="toast"><span id="toastText"></span></div>
+
+    <script>
+        const QUESTIONS = [
+            {
+                e: "A bus moves with a constant speed, represented by a straight line on a distance-time graph that rises from 0 m at 0 s to 90 m at 15 s. What is the speed of the bus?",
+                h: "एक बस अपरिवर्ती चाल से गतिमान है, जिसे दूरी-समय ग्राफ पर एक सीधी रेखा द्वारा दर्शाया गया है जो 0 s पर 0 m से शुरू होकर 15 s पर 90 m तक जाती है। बस की चाल कितनी है?",
+                oEn: ["12 m/s", "9 m/s", "4 m/s", "6 m/s"],
+                oHi: ["12 m/s", "9 m/s", "4 m/s", "6 m/s"],
+                a: 3,
+                sE: "Speed = Distance / Time = 90 m / 15 s = 6 m/s (slope of the distance-time graph).",
+                sH: "दूरी-समय ग्राफ का ढाल चाल बताता है: चाल = दूरी / समय = 90 m / 15 s = 6 m/s."
+            },
+            {
+                e: "If a cyclist covers a distance of 'D' kilometers in 'T' hours, which formula correctly represents the average speed?",
+                h: "यदि एक साइकिल चालक 'T' घंटे में 'D' किलोमीटर की दूरी तय करता है, तो औसत चाल का सही सूत्र कौन-सा है?",
+                oEn: ["Average speed = T/D", "Average speed = D x T", "Average speed = D - T", "Average speed = D/T"],
+                oHi: ["औसत चाल = T/D", "औसत चाल = D x T", "औसत चाल = D - T", "औसत चाल = D/T"],
+                a: 3,
+                sE: "Average speed = Total distance / Total time = D / T.",
+                sH: "औसत चाल = कुल तय की गई दूरी / कुल समय = D / T."
+            },
+            {
+                e: "A ball is dropped from a height and falls freely under gravity for 4 seconds. What is the velocity of the ball after 4 seconds? (Take g = 10 m/s²)",
+                h: "एक गेंद को एक निश्चित ऊँचाई से गिराया जाता है और वह 4 सेकंड तक गुरुत्वाकर्षण के अधीन मुक्त रूप से गिरती है। 4 सेकंड के बाद गेंद का वेग क्या होगा? (g = 10 m/s² लीजिए)",
+                oEn: ["10 m/s", "40 m/s", "80 m/s", "20 m/s"],
+                oHi: ["10 m/s", "40 m/s", "80 m/s", "20 m/s"],
+                a: 1,
+                sE: "Using v = u + gt: initial velocity u = 0, g = 10 m/s², t = 4 s. v = 0 + (10 * 4) = 40 m/s.",
+                sH: "गति का पहला समीकरण: v = u + gt। u = 0, g = 10 m/s², t = 4 s। v = 0 + 10 * 4 = 40 m/s."
+            },
+            {
+                e: "A student records the motion of a ball that travels from point Q to point R, then returns to point S, all along the same straight path. If the ball covers 70 meters to reach R from Q and then 30 meters from R to S, which best represents the physical difference between the total path length and displacement for this journey?",
+                h: "एक विद्यार्थी किसी गेंद की गति को दर्ज करता है जो बिंदु Q से बिंदु R तक जाती है, फिर बिंदु S पर वापस लौटती है, और यह सब एक ही सरल रेखा के अनुदिश होता है। यदि गेंद Q से R तक जाने में 70 मीटर की दूरी तय करती है, और फिर R से S तक जाने में 30 मीटर की दूरी तय करती है, तो कौन-सा, इस यात्रा के लिए कुल पथ-लम्बाई और विस्थापन के बीच के भौतिक अंतर को सर्वोत्तम रूप से निरूपित करता है?",
+                oEn: [
+                    "The path length is the total distance travelled, while displacement is the net straight-line distance from Q to S.",
+                    "The path length and displacement are equal because the motion occurs along a straight path.",
+                    "The displacement is always greater than the path length because it measures the shortest route.",
+                    "The path length depends only on the final position, while displacement depends on the entire journey."
+                ],
+                oHi: [
+                    "पथ-लम्बाई तय की गई कुल दूरी होती है, जबकि विस्थापन Q से S तक नेट सरल रेखीय दूरी है।",
+                    "चूँकि गति एक सरल रेखा के अनुदिश है, इसलिए पथ-लम्बाई और विस्थापन बराबर होंगे।",
+                    "विस्थापन सदैव पथ-लम्बाई से अधिक होता है क्योंकि यह सबसे छोटे मार्ग को मापता है।",
+                    "पथ-लम्बाई केवल अंतिम स्थिति पर निर्भर करती है, जबकि विस्थापन संपूर्ण यात्रा पर निर्भर करता है।"
+                ],
+                a: 0,
+                sE: "Path length is scalar (70 + 30 = 100 m), while displacement is a vector representing the shortest distance between initial (Q) and final (S) position (70 - 30 = 40 m).",
+                sH: "पथ-लम्बाई कुल दूरी होती है (70 + 30 = 100 m), जबकि विस्थापन प्रारंभिक और अंतिम स्थिति के बीच की सीधी दूरी (70 - 30 = 40 m) होती है।"
+            },
+            {
+                e: "A body moves with a uniform speed and its distance-time graph is a straight line from (0 s, 0 m) to (15 s, 45 m). If the body continues at the same rate, what distance will it cover at 20 s?",
+                h: "कोई पिंड एकसमान चाल से गतिमान है और इसका दूरी-समय ग्राफ (0 s, 0 m) से (15 s, 45 m) तक एक सीधी रेखा है। यदि पिंड समान दर से गतिमान रहे, तो वह 20 s में कितनी दूरी तय करेगा?",
+                oEn: ["65 m", "75 m", "60 m", "50 m"],
+                oHi: ["65 m", "75 m", "60 m", "50 m"],
+                a: 2,
+                sE: "Speed = 45 m / 15 s = 3 m/s. Distance at 20 s = Speed * Time = 3 * 20 = 60 m.",
+                sH: "चाल = 45 / 15 = 3 m/s। 20 सेकंड में तय दूरी = चाल * समय = 3 * 20 = 60 m."
+            },
+            {
+                e: "The area under a velocity–time graph for uniform acceleration is in the shape of a _________.",
+                h: "एकसमान त्वरण के लिए वेग-समय ग्राफ के अंतर्गत क्षेत्र, _________ की आकृति के समान होता है।",
+                oEn: ["Trapezium or triangle", "Triangle only", "Circle", "Rectangle only"],
+                oHi: ["समलंब चतुर्भुज या त्रिभुज", "केवल त्रिभुज", "वृत्त", "केवल आयत"],
+                a: 0,
+                sE: "If starting from rest (u = 0), the area is a triangle. If starting with initial velocity (u > 0), the area forms a trapezium.",
+                sH: "यदि वस्तु विराम से चलती है तो क्षेत्रफल त्रिभुजाकार होता है, और यदि प्रारंभिक वेग अशून्य हो तो यह समलंब चतुर्भुज (Trapezium) बनाता है।"
+            },
+            {
+                e: "What does the slope of a velocity-time graph for a body moving with uniform acceleration represent?",
+                h: "एकसमान त्वरण से गतिमान वस्तु के लिए वेग-समय ग्राफ की प्रवणता क्या दर्शाती है?",
+                oEn: ["The acceleration of the object", "The final position of the object", "The initial position of the object", "The total distance covered by the object"],
+                oHi: ["वस्तु का त्वरण", "वस्तु की अंतिम स्थिति", "वस्तु की प्रारंभिक स्थिति", "वस्तु द्वारा तय की गई कुल दूरी"],
+                a: 0,
+                sE: "Slope of v-t graph = dv/dt = acceleration.",
+                sH: "वेग-समय (v-t) ग्राफ की ढाल (slope) त्वरण (acceleration) को दर्शाती है।"
+            },
+            {
+                e: "A runner completes a 400 m circular track in 80 s, ending at the starting point. What is the magnitude of average velocity for this run?",
+                h: "यदि कोई धावक 400 मीटर के वृत्ताकार ट्रैक को 80 सेकंड में पूरा करके प्रारंभिक बिंदु पर वापस आ जाता है, तो इस दौड़ के लिए औसत वेग का परिमाण क्या होगा?",
+                oEn: ["10 m/s", "0 m/s", "4 m/s", "5 m/s"],
+                oHi: ["10 m/s", "0 m/s", "4 m/s", "5 m/s"],
+                a: 1,
+                sE: "Because the runner returns to the starting point, displacement = 0. Average velocity = Displacement / Time = 0 / 80 = 0 m/s.",
+                sH: "प्रारंभिक बिंदु पर वापस लौटने के कारण कुल विस्थापन शून्य है। अतः औसत वेग = 0 / 80 = 0 m/s."
+            },
+            {
+                e: "During a hike, a person walks 7 km east and then 24 km north. Which description best matches the person’s resultant displacement vector?",
+                h: "एक पैदल यात्रा के दौरान, एक व्यक्ति 7 km पूर्व की ओर, और फिर 24 km उत्तर की ओर चलता है। कौन-सा विवरण, व्यक्ति के परिणामी विस्थापन सदिश से सुमेलित है?",
+                oEn: [
+                    "A vector of 25 km pointing northeast from the starting point",
+                    "A vector of 31 km pointing north from the starting point",
+                    "A vector of 7 km pointing east from the starting point",
+                    "A vector of 24 km pointing north from the starting point"
+                ],
+                oHi: [
+                    "प्रारंभिक बिंदु से उत्तर-पूर्व दिशा की ओर 25 km का एक सदिश",
+                    "प्रारंभिक बिंदु से उत्तर दिशा की ओर 31 km का एक सदिश",
+                    "प्रारंभिक बिंदु से पूर्व दिशा की ओर 7 km का एक सदिश",
+                    "प्रारंभिक बिंदु से उत्तर दिशा की ओर 24 km का एक सदिश"
+                ],
+                a: 0,
+                sE: "Magnitude of displacement = √(7² + 24²) = √(49 + 576) = √625 = 25 km towards North-East.",
+                sH: "पाइथागोरस प्रमेय से: विस्थापन = √(7² + 24²) = √625 = 25 km (उत्तर-पूर्व दिशा में)।"
+            },
+            {
+                e: "When an object is moving along a straight line at a variable speed, how can we express the magnitude of its rate of motion?",
+                h: "जब कोई पिंड एक सीधी रेखा में परिवर्ती चाल से गतिमान हो, तो हम उसकी गति की दर के परिमाण को किस प्रकार व्यक्त कर सकते हैं?",
+                oEn: ["Constant speed", "Total acceleration", "Average velocity", "Displacement"],
+                oHi: ["नियत चाल", "कुल त्वरण", "औसत वेग", "विस्थापन"],
+                a: 2,
+                sE: "In a straight line with variable speed, rate of motion is given by average speed or average velocity (since distance and displacement magnitudes align along one direction).",
+                sH: "सीधी रेखा में परिवर्ती गति की दर को औसत वेग (या औसत चाल) द्वारा व्यक्त किया जाता है।"
+            },
+            {
+                e: "Which of the following is not an example of uniform circular motion?",
+                h: "निम्नलिखित में से कौन-सा कथन एकसमान वृत्तीय गति का उदाहरण नहीं है?",
+                oEn: [
+                    "An artificial satellite orbiting the Earth",
+                    "A ball rolling on a straight road",
+                    "The moon revolving around the Earth",
+                    "The blades of a ceiling fan rotating at constant speed"
+                ],
+                oHi: [
+                    "पृथ्वी की परिक्रमा कर रहा एक कृत्रिम उपग्रह",
+                    "सीधी सड़क पर लुढ़क रही एक गेंद",
+                    "पृथ्वी के चारों ओर चक्कर लगा रहा चंद्रमा",
+                    "नियत चाल से घूम रहे सीलिंग फैन के ब्लेड"
+                ],
+                a: 1,
+                sE: "A ball rolling on a straight road is linear/translational motion, not circular motion.",
+                sH: "सीधी सड़क पर लुढ़कती गेंद रेखीय गति (Linear Motion) का उदाहरण है, वृत्तीय गति का नहीं।"
+            },
+            {
+                e: "A train starts from rest and attains a velocity of 40 m/s in 10 s with uniform acceleration. What distance does it cover in this time?",
+                h: "कोई रेलगाड़ी विरामावस्था से चलना प्रारंभ करती है और एकसमान त्वरण के साथ 10 सेकंड में 40 m/s का वेग प्राप्त कर लेती है। इस समय अंतराल में वह कितनी दूरी तय करती है?",
+                oEn: ["250 m", "100 m", "200 m", "400 m"],
+                oHi: ["250 m", "100 m", "200 m", "400 m"],
+                a: 2,
+                sE: "u = 0, v = 40 m/s, t = 10 s. a = (v - u)/t = 40/10 = 4 m/s². Distance s = ut + 0.5*a*t² = 0 + 0.5 * 4 * 100 = 200 m.",
+                sH: "a = (40 - 0)/10 = 4 m/s²। दूरी s = ut + ½at² = 0 + ½ * 4 * 10² = 200 m."
+            },
+            {
+                e: "A cyclist starts from rest and pedals with constant force, causing her velocity to increase at a steady rate. After 5 seconds, which feature best describes the corresponding velocity-time graph for this motion?",
+                h: "कोई साइकिल चालक विरामावस्था से चलना शुरू करता है और नियत बल के साथ पैडल मारता है, जिससे उसका वेग अपरिवर्ती दर से बढ़ता है। 5 सेकंड के बाद, कौन-सी विशेषता, इस गति के लिए संगत वेग-समय ग्राफ का सर्वोत्तम रूप से वर्णन करेगी?",
+                oEn: [
+                    "A curved line upward starting from the origin",
+                    "A straight line sloping upward starting from the origin",
+                    "A straight line sloping downward from the origin",
+                    "A horizontal line parallel to the time axis"
+                ],
+                oHi: [
+                    "मूल बिंदु से ऊपर की ओर बढ़ने वाली एक वक्र रेखा",
+                    "मूल बिंदु से प्रारंभ होकर ऊपर की ओर ढलान वाली एक सरल रेखा",
+                    "मूल बिंदु से नीचे की ओर ढलान वाली एक सरल रेखा",
+                    "समय अक्ष के समानांतर एक क्षैतिज रेखा"
+                ],
+                a: 1,
+                sE: "Constant force implies constant acceleration. Steady rate of velocity increase starting from rest produces a straight line sloping upward from origin.",
+                sH: "नियत त्वरण और विराम से प्रारंभ होने पर वेग-समय ग्राफ मूल बिंदु (origin) से शुरू होकर ऊपर की ओर सीधी रेखा बनाता है।"
+            },
+            {
+                e: "A speed-time graph for a car shows a straight line rising from 0 m/s at 0 s to 20 m/s at 5 s, then staying constant at 20 m/s until 10 s, and finally dropping to 0 m/s at 15 s. What is the total distance travelled by the car?",
+                h: "एक कार का चाल-समय ग्राफ, 0 s पर 0 m/s से 5 s पर 20 m/s तक बढ़ती हुई एक सीधी रेखा दर्शाता है, फिर 10 s तक 20 m/s से नियत रहता है, और अंत में 15 s पर 0 m/s तक गिर जाता है। कार द्वारा तय की गई कुल दूरी कितनी है?",
+                oEn: ["100 m", "150 m", "75 m", "200 m"],
+                oHi: ["100 m", "150 m", "75 m", "200 m"],
+                a: 3,
+                sE: "Area of trapezium: 0.5 * (sum of parallel sides) * height = 0.5 * (15 + 5) * 20 = 0.5 * 20 * 20 = 200 m.",
+                sH: "समलंब का क्षेत्रफल = ½ * (समांतर भुजाओं का योग) * ऊँचाई = ½ * (15 + 5) * 20 = 200 m."
+            },
+            {
+                e: "In a velocity-time graph for uniform motion, what does the area under the line represent?",
+                h: "एकसमान गति के लिए वेग-समय ग्राफ में, रेखा के अंतर्गत क्षेत्रफल क्या दर्शाता है?",
+                oEn: ["Displacement of the object", "Acceleration of the object", "Mass of object", "Force applied on the body"],
+                oHi: ["वस्तु का विस्थापन", "वस्तु का त्वरण", "वस्तु का द्रव्यमान", "पिंड पर लगाया गया बल"],
+                a: 0,
+                sE: "The area under a velocity-time graph equals velocity * time, which represents displacement.",
+                sH: "वेग-समय ग्राफ के नीचे का क्षेत्रफल विस्थापन (Displacement) को दर्शाता है।"
+            },
+            {
+                e: "A student records the total distance covered as 200 meters and the displacement as 120 meters in 50 seconds during a straight-line walk. Which statement best characterizes the relationship between average speed and average velocity in this situation?",
+                h: "सरल रेखा में चलते समय, एक छात्र 50 सेकंड में तय की गई कुल दूरी को 200 मीटर के रूप में, और विस्थापन को 120 मीटर के रूप में दर्ज करता है। कौन-सा कथन, इस स्थिति में औसत चाल और औसत वेग के संबंध को सर्वोत्तम रूप से वर्णित करता है?",
+                oEn: [
+                    "Average speed is less than average velocity because displacement is less than distance",
+                    "Average speed is greater than average velocity because total distance exceeds displacement",
+                    "Average velocity is greater than average speed as displacement is less than distance",
+                    "Average speed equals average velocity since both are calculated over the same time"
+                ],
+                oHi: [
+                    "औसत चाल, औसत वेग से कम है क्योंकि विस्थापन, दूरी से कम है",
+                    "औसत चाल, औसत वेग से अधिक है क्योंकि कुल दूरी, विस्थापन से अधिक है",
+                    "औसत वेग, औसत चाल से अधिक है क्योंकि विस्थापन, दूरी से कम है",
+                    "औसत चाल, औसत वेग के बराबर है क्योंकि दोनों की गणना एकसमान समयावधि में की गई है"
+                ],
+                a: 1,
+                sE: "Average speed = 200/50 = 4 m/s. Average velocity = 120/50 = 2.4 m/s. Average speed is greater because total distance > displacement.",
+                sH: "औसत चाल (200/50 = 4 m/s) औसत वेग (120/50 = 2.4 m/s) से अधिक है क्योंकि दूरी हमेशा विस्थापन से बड़ी या बराबर होती है।"
+            },
+            {
+                e: "During a 60-minute walk, a hiker moves 2 km north, then 2 km east, and finally 2 km south. Evaluating the hiker’s average velocity compared to average speed for the entire walk, which observation is most accurate?",
+                h: "60 मिनट की पैदल यात्रा के दौरान, एक यात्री 2 km उत्तर, फिर 2 km पूर्व, और अंत में 2 km दक्षिण की ओर चलता है। संपूर्ण यात्रा के लिए औसत चाल की तुलना में यात्री के औसत वेग का मूल्यांकन करते समय, कौन-सा अवलोकन सबसे सटीक है?",
+                oEn: [
+                    "The average velocity equals the average speed since all segments are the same length.",
+                    "The average velocity is zero because the hiker’s path forms a triangle.",
+                    "The average velocity is greater than the average speed because the motion is in straight lines.",
+                    "The average velocity is less than the average speed due to the difference between displacement and total distance."
+                ],
+                oHi: [
+                    "औसत वेग, औसत चाल के बराबर है क्योंकि सभी खंड समान लंबाई के हैं।",
+                    "औसत वेग शून्य है क्योंकि यात्री का पथ एक त्रिभुज बनाता है।",
+                    "औसत वेग, औसत चाल से अधिक है क्योंकि गति सरल रेखीय है।",
+                    "विस्थापन और कुल दूरी के बीच के अंतर के कारण औसत वेग, औसत चाल से कम है।"
+                ],
+                a: 3,
+                sE: "Total distance = 2 + 2 + 2 = 6 km. Displacement = 2 km East. Average speed = 6 km/h, average velocity = 2 km/h. Hence, average velocity < average speed.",
+                sH: "कुल दूरी = 6 km, विस्थापन = 2 km (पूर्व)। अतः विस्थापन दूरी से कम होने के कारण औसत वेग औसत चाल से कम है।"
+            },
+            {
+                e: "For an object moving with uniform retardation, the velocity–time graph is ___________.",
+                h: "एकसमान मंदन के साथ गतिमान किसी पिंड का वेग-समय ग्राफ किस प्रकार का होता है?",
+                oEn: ["A straight line sloping downward", "A straight line sloping upward", "A curved line", "A straight line parallel to the time axis"],
+                oHi: ["नीचे की ओर प्रवणता वाली एक सरल रेखा", "ऊपर की ओर प्रवणता वाली एक सरल रेखा", "एक वक्र रेखा", "समय अक्ष के समानांतर एक सरल रेखा"],
+                a: 0,
+                sE: "Uniform retardation means constant negative acceleration, represented by a downward sloping straight line on a v-t graph.",
+                sH: "एकसमान मंदन (ऋणात्मक त्वरण) में वेग घटता है, जिससे वेग-समय ग्राफ नीचे की ओर ढलान वाली सीधी रेखा बनती है।"
+            },
+            {
+                e: "A runner moves along a straight track. For the first 4 seconds, she runs at a constant velocity of 5 m/s. For the next 4 seconds, she decelerates uniformly and comes to rest. What is the total distance she covers in 8 seconds?",
+                h: "कोई धाविका एक सीधे ट्रैक पर दौड़ती है। पहले 4 सेकंड के लिए, वह 5 m/s के नियत वेग से दौड़ती है। अगले 4 सेकंड के लिए, वह एकसमान रूप से वित्वरित होकर विरामावस्था में आ जाती है। 8 सेकंड में वह कुल कितनी दूरी तय करती है?",
+                oEn: ["30 meters", "32 meters", "28 meters", "36 meters"],
+                oHi: ["30 मीटर", "32 मीटर", "28 मीटर", "36 मीटर"],
+                a: 0,
+                sE: "Phase 1: distance = 5 * 4 = 20 m. Phase 2: average speed = (5 + 0)/2 = 2.5 m/s, distance = 2.5 * 4 = 10 m. Total distance = 20 + 10 = 30 meters.",
+                sH: "पहले 4 सेकंड में दूरी = 5 * 4 = 20 m। अगले 4 सेकंड में दूरी = ½ * (5 + 0) * 4 = 10 m। कुल दूरी = 20 + 10 = 30 मीटर।"
+            },
+            {
+                e: "Which of the following statements is/are NOT true about an object moving in uniform circular motion?\nA. The speed of the object remains constant.\nB. The velocity of the object remains constant.\nC. The direction of the object's velocity changes continuously.",
+                h: "एकसमान वृत्तीय गति में गतिमान किसी वस्तु के संबंध में निम्नलिखित में से कौन-से कथन सत्य नहीं हैं?\nA. वस्तु की चाल नियत रहती है।\nB. वस्तु का वेग नियत रहता है।\nC. वस्तु के वेग की दिशा निरंतर परिवर्तित होती रहती है।",
+                oEn: ["Both A and B", "Both A and C", "Only A", "Only B"],
+                oHi: ["A और B दोनों", "A और C दोनों", "केवल A", "केवल B"],
+                a: 3,
+                sE: "In uniform circular motion, speed is constant (A is true) and direction changes continuously (C is true). Therefore, velocity is NOT constant (B is false).",
+                sH: "दिशा लगातार बदलने के कारण वेग नियत नहीं रह सकता (कथन B असत्य है)।"
+            },
+            {
+                e: "A train's velocity-time graph shows a steady velocity of 24 m/s for 5 seconds, then a uniform decrease to 0 m/s over the next 4 seconds. What is the linear velocity at t = 7 s?",
+                h: "एक रेलगाड़ी का वेग-समय ग्राफ, 5 सेकंड के लिए 24 m/s का अपरिवर्ती वेग दर्शाता है, फिर अगले 4 सेकंड में एकसमान रूप से घटकर 0 m/s हो जाता है। t = 7 s पर रैखिक वेग कितना होगा?",
+                oEn: ["12 m/s", "18 m/s", "6 m/s", "24 m/s"],
+                oHi: ["12 m/s", "18 m/s", "6 m/s", "24 m/s"],
+                a: 0,
+                sE: "Deceleration begins at t = 5 s with initial velocity 24 m/s and reaches 0 m/s at t = 9 s (duration 4 s). Retardation a = 24 / 4 = 6 m/s². At t = 7 s (2 seconds into deceleration): v = 24 - 6 * 2 = 12 m/s.",
+                sH: "5 से 9 सेकंड (4 सेकंड) में वेग 24 से 0 होता है, अतः मंदन = 24/4 = 6 m/s²। 7 सेकंड (मंदन के 2s बाद) पर वेग = 24 - (6 * 2) = 12 m/s."
+            },
+            {
+                e: "A train moves with a constant acceleration and its velocity-time graph is a straight line. If the graph passes through the points (0 s, 5 m/s) and (8 s, 21 m/s), what is the total displacement of the train in 8 seconds?",
+                h: "एक रेलगाड़ी नियत त्वरण से चलती है और इसका वेग-समय ग्राफ एक सीधी रेखा है। यदि यह ग्राफ बिंदुओं (0 s, 5 m/s) और (8 s, 21 m/s) से गुजरता है, तो 8 सेकंड में रेलगाड़ी का कुल विस्थापन कितना होगा?",
+                oEn: ["128 m", "112 m", "168 m", "104 m"],
+                oHi: ["128 m", "112 m", "168 m", "104 m"],
+                a: 3,
+                sE: "Displacement = Area of trapezium = 0.5 * (u + v) * t = 0.5 * (5 + 21) * 8 = 0.5 * 26 * 8 = 104 m.",
+                sH: "विस्थापन = समलंब का क्षेत्रफल = ½ * (u + v) * t = ½ * (5 + 21) * 8 = 13 * 8 = 104 m."
+            },
+            {
+                e: "In a distance-time graph, if the curve is NOT a straight line, then it represents _______.",
+                h: "दूरी-समय ग्राफ में, यदि वक्र एक सीधी रेखा नहीं है, तो यह _______ को निरूपित करता है।",
+                oEn: ["non-uniform speed", "uniform speed", "motion with zero acceleration", "object at rest"],
+                oHi: ["असमान चाल", "एकसमान चाल", "शून्य त्वरण के साथ गति", "विरामावस्था में पिंड"],
+                a: 0,
+                sE: "A non-linear distance-time curve means the slope (speed) is changing with time, representing non-uniform speed.",
+                sH: "दूरी-समय ग्राफ में वक्र रेखा दर्शाती है कि चाल समय के साथ बदल रही है, यानी गति असमान (non-uniform) है।"
+            },
+            {
+                e: "If two objects have velocity-time graphs that are both straight lines parallel to the time axis but at different heights, what does this indicate about the two objects?",
+                h: "यदि दो वस्तुओं के वेग-समय ग्राफ, समय अक्ष के समानांतर परंतु अलग-अलग ऊँचाई वाली सीधी रेखाएं हैं, तो यह दोनों वस्तुओं के बारे में क्या संकेत देता है?",
+                oEn: [
+                    "Both are accelerating at the same rate",
+                    "Both have uniform velocities, but different magnitudes",
+                    "Both are moving with the same velocity",
+                    "Both are at rest throughout the interval"
+                ],
+                oHi: [
+                    "दोनों समान दर से त्वरित हो रही हैं",
+                    "दोनों के वेग एकसमान हैं, परंतु परिमाण अलग-अलग हैं",
+                    "दोनों समान वेग से गतिमान हैं",
+                    "पूरे अंतराल के दौरान दोनों विराम पर हैं"
+                ],
+                a: 1,
+                sE: "A horizontal line on a v-t graph indicates constant (uniform) velocity. Different heights mean different values (magnitudes) of velocity.",
+                sH: "समय अक्ष के समानांतर रेखा एकसमान वेग को दर्शाती है, और अलग-अलग ऊँचाई का अर्थ है कि दोनों का वेग मान भिन्न-भिन्न है।"
+            },
+            {
+                e: "A train moves 60 km at 30 km/h, halts for 1h, and then covers 90 km at 45 km/h. What is the average speed over the entire journey?",
+                h: "एक ट्रेन 30 km/h की चाल से 60 km चलती है, 1h के लिए रुकती है, और फिर 45 km/h की चाल से 90 km की दूरी तय करती है। संपूर्ण यात्रा के लिए औसत चाल ज्ञात कीजिए।",
+                oEn: ["50 km/h", "40 km/h", "30 km/h", "20 km/h"],
+                oHi: ["50 km/h", "40 km/h", "30 km/h", "20 km/h"],
+                a: 2,
+                sE: "Time 1 = 60/30 = 2 h. Halt time = 1 h. Time 2 = 90/45 = 2 h. Total time = 2 + 1 + 2 = 5 h. Total distance = 60 + 90 = 150 km. Average speed = 150 / 5 = 30 km/h.",
+                sH: "समय t1 = 60/30 = 2h, रुकने का समय = 1h, t2 = 90/45 = 2h। कुल समय = 5h। कुल दूरी = 150 km। औसत चाल = 150 / 5 = 30 km/h."
+            },
+            {
+                e: "How does velocity differ from speed in the context of describing motion?",
+                h: "गति का वर्णन करने के संदर्भ में वेग, चाल से किस प्रकार भिन्न है?",
+                oEn: [
+                    "Velocity specifies distance covered, while speed specifies displacement.",
+                    "Velocity specifies both the magnitude (speed) and the definite direction of motion.",
+                    "Velocity is calculated using average speed, while speed uses instantaneous speed.",
+                    "Velocity applies only to non-uniform motion, while speed applies only to uniform motion."
+                ],
+                oHi: [
+                    "वेग तय की गई दूरी को निर्दिष्ट करता है, जबकि चाल विस्थापन को निर्दिष्ट करता है।",
+                    "वेग, गति के परिमाण (चाल) और निश्चित दिशा, दोनों को निर्दिष्ट करता है।",
+                    "वेग की गणना औसत चाल का उपयोग करके किया जाता है, जबकि चाल तात्क्षणिक चाल का उपयोग करती है।",
+                    "वेग केवल असमान गति पर अनुप्रयुक्त होता है, जबकि चाल केवल एकसमान गति पर अनुप्रयुक्त होता है।"
+                ],
+                a: 1,
+                sE: "Speed is a scalar quantity (magnitude only), while velocity is a vector quantity (both magnitude and direction).",
+                sH: "चाल एक अदिश राशि है (केवल परिमाण), जबकि वेग एक सदिश राशि है जिसमें परिमाण के साथ दिशा भी होती है।"
+            },
+            {
+                e: "A student observes a speed-time graph for a car that moves with constant speed for 10 seconds, then accelerates for 5 seconds. How can the student use the graph to calculate the total distance travelled during these 15 seconds?",
+                h: "कोई विद्यार्थी किसी कार के लिए चाल-समय आरेख का प्रेक्षण करता है जो 10 सेकंड तक नियत चाल से गति करती है, फिर 5 सेकंड तक त्वरित होती है। विद्यार्थी इन 15 सेकंड के दौरान तय की गई कुल दूरी की गणना करने के लिए आरेख का उपयोग कैसे कर सकता है?",
+                oEn: [
+                    "By calculating the area under the speed-time graph for each section and adding them",
+                    "By using only the area under the acceleration section",
+                    "By reading the final speed at 15 seconds and multiplying by 15",
+                    "By multiplying the total time by the average speed shown on the graph"
+                ],
+                oHi: [
+                    "प्रत्येक खंड के लिए चाल-समय आरेख के अंतर्गत क्षेत्रफल की गणना करके और उन्हें जोड़कर",
+                    "केवल त्वरण खंड के अंतर्गत क्षेत्रफल का उपयोग करके",
+                    "15 सेकंड पर अंतिम चाल को पढ़कर और 15 से गुणा करके",
+                    "कुल समय को आरेख पर दर्शायी गई औसत चाल से गुणा करके"
+                ],
+                a: 0,
+                sE: "The total distance equals the sum of the areas under each section of the speed-time graph (rectangle + trapezium/triangle).",
+                sH: "चाल-समय ग्राफ के अलग-अलग खंडों के अंतर्गत आने वाले क्षेत्रफलों को जोड़कर कुल दूरी प्राप्त की जाती है।"
+            },
+            {
+                e: "A cyclist travels 60 metres north and then 80 metres south in 20 seconds. What is the magnitude of his average velocity?",
+                h: "एक साइकिल चालक 20 सेकंड में 60 मीटर उत्तर और फिर 80 मीटर दक्षिण की ओर जाता है। उसके औसत वेग का परिमाण क्या है?",
+                oEn: ["Zero metres per second", "Seven metres per second", "One metre per second", "Five metres per second"],
+                oHi: ["शून्य मीटर प्रति सेकंड", "सात मीटर प्रति सेकंड", "एक मीटर प्रति सेकंड", "पांच मीटर प्रति सेकंड"],
+                a: 2,
+                sE: "Displacement = 60 - 80 = -20 m (magnitude 20 m south). Time = 20 s. Average velocity = 20 / 20 = 1 m/s.",
+                sH: "विस्थापन = 80 - 60 = 20 मीटर (दक्षिण)। औसत वेग = 20 / 20 = 1 m/s."
+            },
+            {
+                e: "Which of the following quantities does the slope of a velocity-time graph represent for an object in motion?",
+                h: "गतिमान वस्तु के लिए वेग-समय ग्राफ की ढाल निम्नलिखित में से किस राशि को निरूपित करती है?",
+                oEn: ["Displacement", "Speed", "Force", "Acceleration"],
+                oHi: ["विस्थापन", "चाल", "बल", "त्वरण"],
+                a: 3,
+                sE: "Slope of v-t graph represents the time rate of change of velocity, which is acceleration.",
+                sH: "वेग-समय ग्राफ की ढाल वेग परिवर्तन की दर यानी त्वरण (Acceleration) को दर्शाती है।"
+            },
+            {
+                e: "Which statement best describes the direction of velocity in uniform circular motion?",
+                h: "निम्नलिखित में से कौन-सा कथन एकसमान वृत्तीय गति में वेग की दिशा का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "It is always tangent to the circle at any point",
+                    "It is always along the radius away from the center",
+                    "It is always directed towards the center",
+                    "It is always perpendicular to the plane of the circle"
+                ],
+                oHi: [
+                    "यह सदैव वृत्त के किसी भी बिंदु पर स्पर्शरेखा होता है",
+                    "यह सदैव केंद्र से दूर, त्रिज्या के अनुदिश होता है",
+                    "यह सदैव केंद्र की ओर निर्देशित होता है",
+                    "यह सदैव वृत्त के तल के लंबवत होता है"
+                ],
+                a: 0,
+                sE: "In circular motion, velocity is always tangential to the circular path at every point.",
+                sH: "वृत्तीय गति में किसी भी बिंदु पर वेग की दिशा उस बिंदु पर खींची गई स्पर्शरेखा (tangent) के अनुदिश होती है।"
+            },
+            {
+                e: "Which method is appropriate for finding the distance travelled by an object when its velocity-time graph is a straight line sloping upwards from the origin?",
+                h: "किसी वस्तु द्वारा तय की गई दूरी ज्ञात करने के लिए कौन-सी विधि उपयुक्त है, जब उसका वेग-समय ग्राफ मूल बिंदु से उर्ध्वमुखी ढाल वाली एक सरल रेखा हो?",
+                oEn: [
+                    "Subtract the initial time from the final time",
+                    "Read the final velocity value from the graph",
+                    "Calculate the slope of the velocity-time graph",
+                    "Calculate the area under the velocity-time graph for the given interval"
+                ],
+                oHi: [
+                    "अंतिम समय से प्रारंभिक समय को घटाना",
+                    "ग्राफ से अंतिम वेग के मान को पढ़ना",
+                    "वेग-समय ग्राफ की ढाल की गणना करना",
+                    "दिए गए अंतराल के लिए वेग-समय ग्राफ के अंतर्गत क्षेत्रफल की गणना करना"
+                ],
+                a: 3,
+                sE: "Distance/displacement is always given by the area under the velocity-time curve.",
+                sH: "दूरी ज्ञात करने के लिए दिए गए समयांतराल में वेग-समय ग्राफ के नीचे का क्षेत्रफल निकाला जाता है।"
+            },
+            {
+                e: "Which of the following best describes the slope of the velocity-time graph for uniform velocity?",
+                h: "निम्नलिखित में से कौन-सा, एकसमान वेग के लिए वेग-समय ग्राफ की प्रवणता का सर्वोत्तम रूप से वर्णन करता है?",
+                oEn: [
+                    "The slope is negative and constant",
+                    "The slope changes at every point",
+                    "The slope is positive and constant",
+                    "The slope is zero at all points"
+                ],
+                oHi: [
+                    "प्रवणता ऋणात्मक और नियत होती है",
+                    "प्रवणता प्रत्येक बिंदु पर बदलती है",
+                    "प्रवणता धनात्मक और नियत होती है",
+                    "प्रवणता सभी बिंदुओं पर शून्य होती है"
+                ],
+                a: 3,
+                sE: "Uniform velocity means zero acceleration. Since slope = acceleration, the slope is zero at all points.",
+                sH: "एकसमान वेग का अर्थ है त्वरण = 0। चूँकि प्रवणता त्वरण को दर्शाती है, इसलिए यह सभी बिंदुओं पर शून्य होती है।"
+            },
+            {
+                e: "If a car moves with a speed of 10 m/s for 5 seconds, what distance does it cover?",
+                h: "यदि कोई कार 10 m/s की चाल से 5 sec तक गति करती है, तो वह कितनी दूरी तय करेगी?",
+                oEn: ["100 meters", "15 meters", "5 meters", "50 meters"],
+                oHi: ["100 m", "15 m", "5 m", "50 m"],
+                a: 3,
+                sE: "Distance = Speed * Time = 10 m/s * 5 s = 50 meters.",
+                sH: "दूरी = चाल * समय = 10 * 5 = 50 मीटर।"
+            },
+            {
+                e: "If the velocity-time graph of a moving object shows a straight line parallel to the time axis, what can be concluded about the object's acceleration?",
+                h: "यदि किसी गतिमान वस्तु के वेग-समय ग्राफ में समय अक्ष के समानांतर एक सीधी रेखा प्रदर्शित होती है, तो वस्तु के त्वरण के बारे में क्या निष्कर्ष निकाला जा सकता है?",
+                oEn: [
+                    "The object has uniform acceleration",
+                    "The object has changing acceleration",
+                    "The object has negative acceleration",
+                    "The object has zero acceleration"
+                ],
+                oHi: [
+                    "वस्तु का त्वरण एकसमान है",
+                    "वस्तु का त्वरण बदल रहा है",
+                    "वस्तु का त्वरण ऋणात्मक है",
+                    "वस्तु का त्वरण शून्य है"
+                ],
+                a: 3,
+                sE: "A line parallel to the time axis means velocity is constant, so acceleration = dv/dt = 0.",
+                sH: "समय अक्ष के समानांतर रेखा का अर्थ है कि वेग स्थिर है, अतः त्वरण शून्य (Zero acceleration) है।"
+            },
+            {
+                e: "Which of the following best describes the motion of a car traveling at a constant speed around a circular track?",
+                h: "निम्नलिखित में से कौन-सा विकल्प किसी वृत्तीय पथ के परितः नियत चाल से चल रही कार की गति का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "The car moves in a straight line at constant speed since its direction never changes.",
+                    "The car experiences non-uniform motion because it moves along a curved path at constant speed.",
+                    "The car moves with uniform motion as its velocity remains constant in both magnitude and direction.",
+                    "The car moves with uniform circular motion because its speed is constant, but its direction changes continuously."
+                ],
+                oHi: [
+                    "कार एक सीधी रेखा में नियत चाल से चलती है क्योंकि इसकी दिशा कभी नहीं परिवर्तित होती है।",
+                    "कार असमान गति का अनुभव करती है क्योंकि यह नियत चाल से वक्रित पथ पर गति करती है।",
+                    "कार एकसमान गति से चल रही है क्योंकि उसका वेग, परिमाण और दिशा दोनों में नियत है।",
+                    "कार एकसमान वृत्तीय गति से चलती है क्योंकि इसकी चाल नियत रहती है, लेकिन इसकी दिशा निरंतर बदलती रहती है।"
+                ],
+                a: 3,
+                sE: "Moving along a circle at constant speed is uniform circular motion because direction of motion continuously changes at every instant.",
+                sH: "नियत चाल लेकिन निरंतर बदलती दिशा के कारण इसे एकसमान वृत्तीय गति (Uniform Circular Motion) कहा जाता है।"
+            },
+            {
+                e: "A runner moves 60 meters north and then 80 meters south in 20 seconds. Which statement is correct about her average speed and average velocity?",
+                h: "कोई धावक 20 सेकंड में 60 मीटर उत्तर की ओर और फिर 80 मीटर दक्षिण की ओर गति करती है। उसकी औसत चाल और औसत वेग के संदर्भ में कौन-सा कथन सही है?",
+                oEn: [
+                    "Average speed is greater than average velocity",
+                    "Average speed is less than average velocity",
+                    "Average speed is zero",
+                    "Average speed equals average velocity"
+                ],
+                oHi: [
+                    "औसत चाल, औसत वेग से अधिक है",
+                    "औसत चाल, औसत वेग से कम है",
+                    "औसत चाल शून्य है",
+                    "औसत चाल, औसत वेग के बराबर है"
+                ],
+                a: 0,
+                sE: "Total distance = 60 + 80 = 140 m; Average speed = 140 / 20 = 7 m/s. Displacement = 20 m; Average velocity = 20 / 20 = 1 m/s. Average speed > average velocity.",
+                sH: "औसत चाल = 140/20 = 7 m/s, औसत वेग = 20/20 = 1 m/s। अतः औसत चाल औसत वेग से अधिक है।"
+            },
+            {
+                e: "Acceleration is defined as:",
+                h: "त्वरण को ________________ के रूप में परिभाषित किया जाता है।",
+                oEn: ["Change in velocity per unit time", "Displacement per unit time", "Distance per unit time", "Change in displacement per unit time"],
+                oHi: ["प्रति इकाई समय वेग में परिवर्तन", "प्रति इकाई समय विस्थापन", "प्रति इकाई समय दूरी", "प्रति इकाई समय विस्थापन में परिवर्तन"],
+                a: 0,
+                sE: "Acceleration is the rate of change of velocity with respect to time (a = Δv / Δt).",
+                sH: "वेग परिवर्तन की समय दर को त्वरण कहते हैं (a = Δv / Δt)।"
+            },
+            {
+                e: "Which quantity is represented by the slope of a position-time graph for an object moving in a straight line?",
+                h: "सीधी रेखा में गतिमान किसी वस्तु के स्थिति-समय ग्राफ की ढाल (slope) द्वारा किस राशि को दर्शाया जाता है?",
+                oEn: ["Force", "Acceleration", "Momentum", "Linear velocity"],
+                oHi: ["बल", "त्वरण", "संवेग", "रैखिक वेग"],
+                a: 3,
+                sE: "The slope of a position-time (x-t) graph is dx/dt, which represents velocity.",
+                sH: "स्थिति-समय ग्राफ का ढाल स्थिति में परिवर्तन की दर यानी वेग (Linear velocity) को दर्शाता है।"
+            },
+            {
+                e: "If the distance between two points on a straight line distance-time graph is 120 meters and the corresponding time interval is 4 seconds, what is the uniform speed?",
+                h: "यदि किसी सरल रेखा दूरी-समय ग्राफ पर दो बिंदुओं के बीच की दूरी 120 मीटर है और संगत काल अंतराल 4 सेकंड है, तो एकसमान चाल कितनी है?",
+                oEn: ["60 m/s", "24 m/s", "30 m/s", "15 m/s"],
+                oHi: ["60 m/s", "24 m/s", "30 m/s", "15 m/s"],
+                a: 2,
+                sE: "Uniform speed = Δs / Δt = 120 m / 4 s = 30 m/s.",
+                sH: "एकसमान चाल = दूरी / समय = 120 / 4 = 30 m/s."
+            },
+            {
+                e: "A toy train moves around a circular track at a constant speed. Which statement correctly describes its motion?",
+                h: "एक खिलौना ट्रेन किसी वृत्ताकार ट्रैक पर स्थिर चाल से चलती है। निम्नलिखित में से कौन-सा कथन उसकी चाल का सही वर्णन करता है?",
+                oEn: [
+                    "The train changes its direction continuously while moving with constant speed.",
+                    "The train moves with increasing speed along the circular track.",
+                    "The train moves in a straight line with constant speed.",
+                    "The train remains at rest because its speed does not change."
+                ],
+                oHi: [
+                    "ट्रेन नियत चाल से चलते हुए निरंतर रूप से दिशा बदलती है।",
+                    "ट्रेन वृत्ताकार ट्रैक पर बढ़ती हुई चाल से चलती है।",
+                    "ट्रेन एक सीधी रेखा में नियत चाल से चलती है।",
+                    "ट्रेन विरामावस्था में रहती है क्योंकि उसकी चाल में कोई परिवर्तन नहीं होती है।"
+                ],
+                a: 0,
+                sE: "In uniform circular motion, magnitude of velocity (speed) remains constant while direction changes at every point.",
+                sH: "वृत्ताकार पथ पर गति करते हुए चाल तो नियत रहती है, लेकिन गति की दिशा लगातार बदलती रहती है।"
+            },
+            {
+                e: "A cyclist covers 2 km in the first 10 minutes and 3 km in the next 10 minutes. What type of motion is this?",
+                h: "एक साइकिल सवार पहले 10 मिनट में 2 km और अगले 10 मिनट में 3 km की दूरी तय करता है। यह किस प्रकार की चाल है?",
+                oEn: ["circular motion", "uniform motion", "non-uniform motion", "periodic motion"],
+                oHi: ["वृत्तीय गति", "एकसमान गति", "असमान गति", "आवर्ती गति"],
+                a: 2,
+                sE: "The cyclist covers unequal distances (2 km and 3 km) in equal intervals of time (10 min each), which defines non-uniform motion.",
+                sH: "समान समयांतराल (10 मिनट) में भिन्न-भिन्न दूरियाँ (2 km और 3 km) तय करने के कारण यह असमान गति (Non-uniform motion) है।"
+            },
+            {
+                e: "A car travels 150 kilometers in 3 hours. What is the average speed of the car, and what is the correct unit for this quantity?",
+                h: "एक कार 3 घंटे में 150 किलोमीटर की दूरी तय करती है। कार की औसत चाल कितनी है और इस राशि के लिए सही मात्रक क्या है?",
+                oEn: ["50 kilometers per hour", "0.02 kilometers per hour", "150 kilometers per hour", "50 kilometers per minute"],
+                oHi: ["50 किलोमीटर प्रति घंटे", "0.02 किलोमीटर प्रति घंटे", "150 किलोमीटर प्रति घंटे", "50 किलोमीटर प्रति मिनट"],
+                a: 0,
+                sE: "Average speed = 150 km / 3 h = 50 km/h.",
+                sH: "औसत चाल = 150 / 3 = 50 km/h (किलोमीटर प्रति घंटा)।"
+            },
+            {
+                e: "If a person walks 5 meters east, then 12 meters west along a straight path, which value represents the magnitude of the person’s displacement?",
+                h: "यदि कोई व्यक्ति एक सीधे पथ के अनुदिश 5 मीटर पूर्व की ओर और फिर 12 मीटर पश्चिम की ओर चलता है, तो व्यक्ति के विस्थापन का परिमाण किस मान से निरूपित किया जाएगा?",
+                oEn: ["17 meters", "12 meters", "5 meters", "7 meters"],
+                oHi: ["17 मीटर", "12 मीटर", "5 मीटर", "7 मीटर"],
+                a: 3,
+                sE: "Displacement magnitude = |5 - 12| = 7 meters (directed west).",
+                sH: "विस्थापन = |5 पूर्व - 12 पश्चिम| = 7 मीटर पश्चिम दिशा में।"
+            },
+            {
+                e: "Which of the following best describes uniform circular motion?",
+                h: "निम्नलिखित में से कौन-सा विकल्प एकसमान वृत्तीय गति का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "An object at rest in a circular path",
+                    "An object moving at a constant speed in a straight line",
+                    "An object moving at a changing speed along a curved path",
+                    "An object moving at a constant speed along a circular path"
+                ],
+                oHi: [
+                    "वृत्तीय पथ पर विरामावस्था एक वस्तु",
+                    "एक सरल रेखा में नियत चाल से गतिमान एक वस्तु",
+                    "एक वक्रित पथ के अनुदिश परिवर्ती चाल से गतिमान एक वस्तु",
+                    "एक वृत्तीय पथ के अनुदिश नियत चाल से गतिमान एक वस्तु"
+                ],
+                a: 3,
+                sE: "Uniform circular motion is defined as the motion of an object along a circular path at a constant speed.",
+                sH: "वृत्तीय पथ पर नियत चाल से होने वाली गति को एकसमान वृत्तीय गति कहते हैं।"
+            },
+            {
+                e: "A velocity-time graph for a body moving with uniform acceleration is a straight line that slopes upwards. What does the area under this line between two time points represent?",
+                h: "एकसमान त्वरण से गतिमान किसी पिंड के लिए वेग-समय ग्राफ में ऊपर की ओर ढाल वाली एक सीधी रेखा होती है। दो समय बिंदुओं के बीच इस रेखा के अंतर्गत क्षेत्रफल क्या दर्शाता है?",
+                oEn: [
+                    "The total change in velocity during that time interval",
+                    "The average velocity during that time interval",
+                    "The acceleration of the body during that time interval",
+                    "The displacement of the body during that time interval"
+                ],
+                oHi: [
+                    "उस समय अंतराल के दौरान वेग में कुल परिवर्तन",
+                    "उस समय अंतराल के दौरान औसत वेग",
+                    "उस समय अंतराल के दौरान पिंड का त्वरण",
+                    "उस समय अंतराल के दौरान पिंड का विस्थापन"
+                ],
+                a: 3,
+                sE: "The area bounded by a velocity-time graph and the time axis between two points in time represents displacement.",
+                sH: "वेग-समय ग्राफ के अंतर्गत आने वाला क्षेत्रफल विस्थापन (Displacement) को दर्शाता है।"
+            },
+            {
+                e: "When interpreting a velocity–time graph, what physical quantity is represented by the area under the graph during a specific time interval?",
+                h: "किसी वेग-समय ग्राफ की व्याख्या करते समय, किसी विशिष्ट समय-अंतराल के दौरान ग्राफ के अंतर्गत क्षेत्रफल किस भौतिक राशि को निरूपित करता है?",
+                oEn: ["Distance (or displacement) travelled", "Change in velocity", "Acceleration of the car", "Speed of the car"],
+                oHi: ["यात्रा की गई दूरी (या विस्थापन)", "वेग में परिवर्तन", "कार के त्वरण", "कार की चाल"],
+                a: 0,
+                sE: "The area under a v-t graph represents distance or displacement.",
+                sH: "वेग-समय आरेख के अंतर्गत क्षेत्रफल दूरी या विस्थापन को व्यक्त करता है।"
+            },
+            {
+                e: "On a velocity-time graph, what does a horizontal straight line above the time axis indicate about the motion of the object?",
+                h: "वेग-समय ग्राफ पर, समय अक्ष के ऊपर क्षैतिज सीधी रेखा वस्तु की गति के संबंध में क्या इंगित करती है?",
+                oEn: ["Constant velocity", "Increasing velocity", "Changing direction", "Constant acceleration"],
+                oHi: ["नियत वेग", "वर्धमान वेग", "परिवर्ती दिशा", "नियत त्वरण"],
+                a: 0,
+                sE: "A horizontal straight line on a v-t graph indicates that velocity remains constant over time.",
+                sH: "समय अक्ष के समानांतर क्षैतिज रेखा यह दर्शाती है कि वेग समय के साथ स्थिर (नियत वेग) है।"
+            },
+            {
+                e: "A velocity-time graph for a car moving with uniform velocity starts at t=0 s and ends at t=10 s, always at 5 m/s. What is the shape of the graph?",
+                h: "एकसमान वेग से गतिमान किसी कार के लिए वेग-समय ग्राफ t=0 s से शुरू होता है और t=10 s पर समाप्त होता है, यह सदैव 5 m/s पर रहता है। ग्राफ की आकृति क्या होगी?",
+                oEn: [
+                    "A curve rising above 5 m/s",
+                    "A straight horizontal line at 5 m/s",
+                    "A straight line rising from 0 to 5 m/s",
+                    "A straight line falling from 5 to 0 m/s"
+                ],
+                oHi: [
+                    "5 m/s से ऊपर उठता हुआ एक वक्र",
+                    "5 m/s पर एक सरल क्षैतिज रेखा",
+                    "0 से 5 m/s तक उठती हुई एक सरल रेखा",
+                    "5 से 0 m/s तक गिरती हुई एक सरल रेखा"
+                ],
+                a: 1,
+                sE: "Since velocity is constant at 5 m/s, it forms a straight horizontal line parallel to the time axis at v = 5 m/s.",
+                sH: "चूँकि वेग स्थिर 5 m/s पर है, इसलिए यह समय अक्ष के समानांतर एक सीधी क्षैतिज रेखा होगी।"
+            },
+            {
+                e: "Two objects, P and Q, move with uniform speeds. The distance–time graph of P is steeper than that of Q. What does this indicate?",
+                h: "दो वस्तुएँ, P और Q, एकसमान चाल से गतिमान हैं। P का दूरी-समय ग्राफ, Q के दूरी-समय ग्राफ की तुलना में अधिक प्रवण है। यह क्या इंगित करता है?",
+                oEn: ["P is accelerating", "P has lower speed than Q", "P has greater speed than Q", "Both have equal speed"],
+                oHi: ["P त्वरित हो रहा है", "P की चाल, Q की चाल से कम है", "P की चाल, Q की चाल से अधिक है", "दोनों की चाल समान है"],
+                a: 2,
+                sE: "Slope of distance-time graph = speed. Steeper slope means greater speed, so P has greater speed than Q.",
+                sH: "दूरी-समय ग्राफ का ढाल चाल बताता है। P की प्रवणता (ढाल) अधिक होने के कारण P की चाल Q से अधिक है।"
+            },
+            {
+                e: "In a velocity–time graph, which type of line represents motion with no change in velocity?",
+                h: "वेग–समय ग्राफ में, किस प्रकार की रेखा, वेग में कोई परिवर्तन न होने वाली गति को निरूपित करती है?",
+                oEn: ["Slanted straight line", "Parabola", "Horizontal straight line", "Curved line"],
+                oHi: ["तिर्यक सीधी रेखा", "परवलय", "क्षैतिज सीधी रेखा", "वक्रित रेखा"],
+                a: 2,
+                sE: "Zero acceleration (constant velocity) is shown by a horizontal straight line parallel to the time axis.",
+                sH: "वेग में कोई परिवर्तन न होने पर ग्राफ समय अक्ष के समानांतर एक क्षैतिज सीधी रेखा (Horizontal line) बनाता है।"
+            },
+            {
+                e: "A distance-time graph for an object moving at uniform speed is characterized by which of the following features?",
+                h: "एकसमान गति से गतिमान किसी वस्तु के लिए दूरी-समय ग्राफ निम्नलिखित में से किस विशेषता द्वारा अभिलक्षित किया जाता है?",
+                oEn: [
+                    "A straight line with a constant positive slope",
+                    "A horizontal straight line",
+                    "A curved line with changing slope",
+                    "A straight line with a negative slope"
+                ],
+                oHi: [
+                    "स्थिर धनात्मक ढाल वाली सरल रेखा द्वारा",
+                    "क्षैतिज सरल रेखा द्वारा",
+                    "परिवर्ती ढाल वाली वक्रित रेखा द्वारा",
+                    "ऋणात्मक ढाल वाली सरल रेखा द्वारा"
+                ],
+                a: 0,
+                sE: "Uniform speed means distance increases linearly with time, creating a straight line with constant positive slope.",
+                sH: "एकसमान चाल में दूरी समय के समानुपाती बढ़ती है, जिससे यह नियत धनात्मक ढाल वाली सीधी रेखा बनाती है।"
+            },
+            {
+                e: "For a car moving with accelerated motion, the distance-time graph is:",
+                h: "त्वरित रूप से गतिमान एक कार के लिए, दूरी-समय ग्राफ कैसा होगा?",
+                oEn: ["Non-linear curve", "Straight line", "Vertical line", "Horizontal line"],
+                oHi: ["अरेखिक वक्र", "सीधी रेखा", "ऊर्ध्वाधर रेखा", "क्षैतिज रेखा"],
+                a: 0,
+                sE: "Accelerated motion means speed changes with time, making the distance-time graph a non-linear curve (parabolic curve).",
+                sH: "त्वरित गति में चाल बदलती रहती है, इसलिए दूरी-समय ग्राफ एक अरेखिक वक्र (Non-linear curve) होता है।"
+            },
+            {
+                e: "Which feature of a velocity-time graph for uniform acceleration determines the value of acceleration?",
+                h: "एकसमान त्वरण के लिए वेग-समय ग्राफ की कौन-सी विशेषता त्वरण का मान निर्धारित करती है?",
+                oEn: [
+                    "The intercept on the velocity axis",
+                    "The maximum value on the velocity axis",
+                    "The slope of the velocity-time graph",
+                    "The area under the velocity-time graph"
+                ],
+                oHi: [
+                    "वेग अक्ष पर अंतःखंड",
+                    "वेग अक्ष पर अधिकतम मान",
+                    "वेग-समय आरेख की प्रवणता",
+                    "वेग-समय आरेख द्वारा परिबद्ध क्षेत्रफल"
+                ],
+                a: 2,
+                sE: "The slope (gradient) of the velocity-time graph determines the magnitude of acceleration (a = dv/dt).",
+                sH: "वेग-समय ग्राफ की प्रवणता (Slope) त्वरण का मान निर्धारित करती है।"
+            },
+            {
+                e: "Two objects, Object P and Object Q, move along a straight road. Object P travels 20 meters every 2 seconds, while Object Q covers 20 meters in the first 2 seconds and 30 meters in the next 2 seconds. Which statement is correct about their motions?",
+                h: "दो वस्तुएँ, वस्तु P और वस्तु Q, एक सीधी सड़क पर गति कर रही हैं। वस्तु P प्रत्येक 2 सेकंड में 20 मीटर की यात्रा करती है, जबकि वस्तु Q पहले 2 सेकंड में 20 मीटर और अगले 2 सेकंड में 30 मीटर की दूरी तय करती है। उनकी गतियों के संबंध में कौन-सा कथन सही है?",
+                oEn: [
+                    "Both objects are in uniform motion.",
+                    "Object P is in non-uniform motion, while Object Q is in uniform motion.",
+                    "Object P is in uniform motion, while Object Q is in non-uniform motion.",
+                    "Both objects are in non-uniform motion."
+                ],
+                oHi: [
+                    "दोनों वस्तुएँ एकसमान गति में हैं।",
+                    "वस्तु P असमान गति में है, जबकि वस्तु Q एकसमान गति में है।",
+                    "वस्तु P एकसमान गति में है, जबकि वस्तु Q असमान गति में है।",
+                    "दोनों वस्तुएँ असमान गति में हैं।"
+                ],
+                a: 2,
+                sE: "P covers equal distances (20 m) in equal times (2 s) -> uniform motion. Q covers unequal distances (20 m then 30 m) in equal times (2 s) -> non-uniform motion.",
+                sH: "P समान समय में समान दूरी तय करता है (एकसमान गति), जबकि Q समान समय में भिन्न दूरी तय करता है (असमान गति)।"
+            },
+            {
+                e: "Which of the following vectors correctly represents the displacement if an object moves from the point (0, 0) to the point (4, -3) in a plane?",
+                h: "यदि कोई वस्तु तल में बिंदु (0, 0) से बिंदु (4, -3) तक गति करती है, तो निम्नलिखित में से कौन-सा सदिश, विस्थापन को सही प्रकार से निरूपित करता है?",
+                oEn: ["(3, -4)", "(-3, 4)", "(-4, 3)", "(4, -3)"],
+                oHi: ["(3, -4)", "(-3, 4)", "(-4, 3)", "(4, -3)"],
+                a: 3,
+                sE: "Displacement vector = (x2 - x1, y2 - y1) = (4 - 0, -3 - 0) = (4, -3).",
+                sH: "विस्थापन सदिश = (x₂ - x₁, y₂ - y₁) = (4 - 0, -3 - 0) = (4, -3)."
+            },
+            {
+                e: "Which statement correctly describes the difference between position vector and displacement vector?",
+                h: "निम्नलिखित में से कौन-सा कथन स्थिति सदिश और विस्थापन सदिश के बीच के अंतर को सही रूप में वर्णित करता है?",
+                oEn: [
+                    "Both always have the same magnitude",
+                    "Position vector locates a point; displacement vector shows the change between two points",
+                    "Both always point in the same direction",
+                    "Position vector always shows the path traveled"
+                ],
+                oHi: [
+                    "दोनों का परिमाण सदैव समान होता है",
+                    "स्थिति सदिश एक बिंदु का स्थान निर्धारण करता है; विस्थापन सदिश दो बिंदुओं के बीच के परिवर्तन को दर्शाता है",
+                    "दोनों सदैव समान दिशा में इंगित होते हैं",
+                    "स्थिति सदिश सदैव तय किए गए पथ को दर्शाता है"
+                ],
+                a: 1,
+                sE: "Position vector gives position of a point relative to origin, whereas displacement vector gives the change in position between two points.",
+                sH: "स्थिति सदिश मूल बिंदु के सापेक्ष स्थिति बताता है, जबकि विस्थापन सदिश दो स्थितियों के मध्य परिवर्तन को दर्शाता है।"
+            },
+            {
+                e: "Which quantity changes continuously for an object in uniform circular motion?",
+                h: "एकसमान वृत्तीय गति में किसी वस्तु के लिए कौन-सी राशि निरंतर बदलती रहती है?",
+                oEn: ["The mass changes", "The speed changes", "The direction of velocity changes", "The kinetic energy changes"],
+                oHi: ["द्रव्यमान बदलता है", "चाल बदलती है", "वेग की दिशा बदलती है", "गतिज ऊर्जा बदलती है"],
+                a: 2,
+                sE: "In uniform circular motion, speed is constant, but direction of velocity changes at every single point along the path.",
+                sH: "एकसमान वृत्तीय गति में चाल नियत रहती है, लेकिन वेग की दिशा प्रत्येक बिंदु पर बदलती रहती है।"
+            },
+            {
+                e: "What does the displacement vector represent in two-dimensional motion?",
+                h: "द्वि-विमीय गति में विस्थापन सदिश क्या निरूपित करता है?",
+                oEn: [
+                    "The average speed of the object",
+                    "The distance traveled along the path",
+                    "The path followed by the object",
+                    "The change in position from the initial point to the final point"
+                ],
+                oHi: [
+                    "वस्तु की औसत चाल",
+                    "पथ के अनुदिश तय की गई दूरी",
+                    "वस्तु द्वारा अनुसरण किया गया पथ",
+                    "प्रारंभिक बिंदु से अंतिम बिंदु तक स्थिति में परिवर्तन"
+                ],
+                a: 3,
+                sE: "The displacement vector represents the shortest directed vector from the initial to the final position.",
+                sH: "विस्थापन सदिश प्रारंभिक बिंदु से अंतिम बिंदु तक वस्तु की स्थिति में हुए परिवर्तन को दर्शाता है।"
+            },
+            {
+                e: "Which quantity does linear velocity describe in the context of motion?",
+                h: "गति के संदर्भ में रैखिक वेग किस राशि का वर्णन करता है?",
+                oEn: [
+                    "The amount of force applied",
+                    "The rate of change of position along a straight path",
+                    "The total distance covered in all directions",
+                    "The direction of motion only"
+                ],
+                oHi: [
+                    "अनुप्रयुक्त बल की मात्रा",
+                    "सरल पथ के अनुदिश स्थिति परिवर्तन की दर",
+                    "सभी दिशाओं में तय की गई कुल दूरी",
+                    "केवल गति की दिशा"
+                ],
+                a: 1,
+                sE: "Linear velocity is defined as the rate of change of position (displacement) with respect to time along a straight path.",
+                sH: "सरल रेखा में समय के साथ स्थिति परिवर्तन (विस्थापन) की दर को रैखिक वेग कहते हैं।"
+            },
+            {
+                e: "Which statement best describes the difference between path length and displacement for an object moving in a straight line and returning to its starting point?",
+                h: "निम्नलिखित में से कौन-सा कथन, किसी सरल रेखा में गति करने वाली और अपने आरंभिक बिंदु पर लौटने वाली वस्तु के लिए पथ की लंबाई और विस्थापन के बीच के अंतर का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "Path length is always equal to displacement",
+                    "Displacement is greater than path length",
+                    "Path length is either equal to or greater than displacement",
+                    "Displacement is always negative"
+                ],
+                oHi: [
+                    "पथ की लंबाई सदैव विस्थापन के बराबर होती है",
+                    "विस्थापन, पथ की लंबाई से अधिक होता है",
+                    "पथ की लंबाई या तो विस्थापन के बराबर या उससे अधिक होती है",
+                    "विस्थापन सदैव ऋणात्मक होता है"
+                ],
+                a: 2,
+                sE: "Distance (path length) is a scalar and is always ≥ magnitude of displacement. For a round trip, path length > 0 while displacement = 0.",
+                sH: "पथ की लंबाई हमेशा विस्थापन के परिमाण से बड़ी या उसके बराबर होती है (दूरी ≥ |विस्थापन|)।"
+            },
+            {
+                e: "A car starts from rest and accelerates uniformly at 2 m/s² for 5 seconds. What is the distance it travels during this time?",
+                h: "एक कार विरामावस्था से चलना प्रारंभ करती है और 5 सेकंड के लिए 2 m/s² के एकसमान त्वरण से त्वरित होती है। इस समयांतराल में कार द्वारा तय की गई दूरी कितनी है?",
+                oEn: ["20 meters", "50 meters", "25 meters", "10 meters"],
+                oHi: ["20 मीटर", "50 मीटर", "25 मीटर", "10 मीटर"],
+                a: 2,
+                sE: "u = 0, a = 2 m/s², t = 5 s. Using s = ut + 0.5*a*t²: s = 0 + 0.5 * 2 * (5)² = 25 meters.",
+                sH: "s = ut + ½at² = 0 + ½ * 2 * (5)² = 25 मीटर।"
+            },
+            {
+                e: "Which of the following best describes the appearance of a distance-time graph for an object moving at a uniform speed?",
+                h: "निम्नलिखित में से कौन-सा विकल्प, एकसमान चाल से गतिमान किसी वस्तु के लिए दूरी-समय आरेख की दिखावट का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "A horizontal line parallel to the time axis",
+                    "A straight line with a constant positive slope",
+                    "A vertical line parallel to the distance axis",
+                    "A curved line with a changing slope"
+                ],
+                oHi: [
+                    "समय अक्ष के समानांतर एक क्षैतिज रेखा",
+                    "स्थिर धनात्मक ढाल वाली एक सरल रेखा",
+                    "दूरी अक्ष के समानांतर एक ऊर्ध्वाधर रेखा",
+                    "परिवर्ती ढाल एक वक्रीय रेखा"
+                ],
+                a: 1,
+                sE: "Uniform speed creates a straight line sloping upward from the origin with a constant positive slope.",
+                sH: "एकसमान चाल में दूरी-समय ग्राफ एक स्थिर धनात्मक ढाल (constant positive slope) वाली सीधी रेखा बनाता है।"
+            },
+            {
+                e: "Which statement best describes a straight line sloping upwards on a distance-time graph for an object moving with uniform speed?",
+                h: "निम्नलिखित में से कौन-सा कथन, एकसमान चाल से गतिमान किसी वस्तु के लिए दूरी-समय ग्राफ पर ऊपर की ओर ढलान वाली एक सरल रेखा का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "The object covers equal distances in equal intervals of time",
+                    "The object is stationary at all times",
+                    "The object returns to its starting point repeatedly",
+                    "The object moves with varying speed throughout"
+                ],
+                oHi: [
+                    "वस्तु समान समयांतरालों में समान दूरियां तय करती है",
+                    "वस्तु सभी समयों पर स्थिर रहती है",
+                    "वस्तु बार-बार अपने प्रारंभिक बिंदु पर लौटती है",
+                    "वस्तु पूरी अवधि में परिवर्ती चाल से गति करती है"
+                ],
+                a: 0,
+                sE: "A straight sloping line on a distance-time graph means the rate of distance covered is constant, i.e., equal distances in equal intervals of time.",
+                sH: "एकसमान चाल वाली वस्तु समान समयांतरालों में समान दूरी तय करती है, जिससे ग्राफ सीधी रेखा बनता है।"
+            },
+            {
+                e: "Which statement best describes the velocity of an object undergoing uniform circular motion?",
+                h: "निम्नलिखित में से कौन-सा कथन, एकसमान वृत्तीय गति करने वाली किसी वस्तु के वेग का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "The object’s speed increases and decreases as it moves around the circle.",
+                    "The magnitude of velocity remains constant, but its direction continuously changes around the circle.",
+                    "The object moves with a changing velocity along a straight path.",
+                    "The velocity remains unchanged in both magnitude and direction throughout motion."
+                ],
+                oHi: [
+                    "वस्तु की चाल वृत्त में घूमते समय बढ़ती और घटती रहती है।",
+                    "वेग का परिमाण नियत रहता है, लेकिन वृत्त के चारों ओर इसकी दिशा निरंतर बदलती रहती है।",
+                    "वस्तु एक सीधे पथ पर परिवर्ती वेग के साथ गति करती है।",
+                    "पूरी गति के दौरान वेग का परिमाण और दिशा दोनों अपरिवर्तित रहते हैं।"
+                ],
+                a: 1,
+                sE: "In uniform circular motion, speed (magnitude of velocity) is constant, but velocity vector changes due to changing direction.",
+                sH: "एकसमान वृत्तीय गति में वेग का परिमाण (चाल) नियत रहता है, लेकिन दिशा प्रत्येक क्षण बदलती रहती है।"
+            },
+            {
+                e: "A car moves at a constant speed of 20 m/s for 5 seconds. What is the total distance travelled by the car during this time?",
+                h: "कोई कार 5 सेकंड तक 20 m/s की स्थिर चाल से चलती है। इस दौरान कार द्वारा तय की गई कुल दूरी कितनी है?",
+                oEn: ["25 meters", "4 meters", "400 meters", "100 meters"],
+                oHi: ["25 मीटर", "4 मीटर", "400 मीटर", "100 मीटर"],
+                a: 3,
+                sE: "Distance = Speed * Time = 20 m/s * 5 s = 100 meters.",
+                sH: "दूरी = चाल * समय = 20 * 5 = 100 मीटर।"
+            },
+            {
+                e: "Which statement best describes uniform circular motion in the context of motion and force?",
+                h: "निम्नलिखित में से कौन-सा कथन, गति और बल के संदर्भ में एकसमान वृत्तीय गति का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "An object moves in a straight line at changing speed.",
+                    "An object moves in a circle at constant speed but its velocity changes due to change in direction.",
+                    "An object moves in a circle with both constant speed and constant direction.",
+                    "An object moves in a circle with changing speed and constant direction."
+                ],
+                oHi: [
+                    "कोई वस्तु किसी सीधी रेखा में परिवर्ती चाल से चलती है",
+                    "कोई वस्तु किसी वृत्त में नियत चाल से चलती है, लेकिन दिशा में परिवर्तन के कारण इसका वेग बदल जाता है",
+                    "कोई वस्तु किसी वृत्त में नियत चाल और नियत दिशा दोनों के साथ चलती है",
+                    "कोई वस्तु किसी वृत्त में परिवर्ती चाल और नियत दिशा में चलती है"
+                ],
+                a: 1,
+                sE: "Uniform circular motion involves constant speed along a curved path, with velocity constantly changing due to the continuous change of direction.",
+                sH: "वृत्तीय पथ पर चाल नियत रहती है, लेकिन प्रत्येक बिंदु पर दिशा बदलने से वेग परिवर्तित होता रहता है।"
+            },
+            {
+                e: "Which of the following describes an object moving with uniform motion along a straight line?",
+                h: "निम्नलिखित में से कौन-सा विकल्प, सरल रेखा के अनुदिश एकसमान गति से गतिमान वस्तु का वर्णन करता है?",
+                oEn: [
+                    "An object changing direction at intervals",
+                    "An object traveling at a constant speed in one direction",
+                    "An object accelerating as it moves forward",
+                    "An object stopping and starting repeatedly"
+                ],
+                oHi: [
+                    "अंतरालों पर दिशा बदलने वाली कोई वस्तु",
+                    "एक दिशा में नियत चाल से गतिमान कोई वस्तु",
+                    "आगे बढ़ते हुए त्वरित होती हुई कोई वस्तु",
+                    "किसी वस्तु का बार-बार रुकना और फिर चलना"
+                ],
+                a: 1,
+                sE: "Uniform motion in a straight line means constant speed in a fixed direction, meaning zero acceleration.",
+                sH: "एक ही दिशा में नियत चाल से बिना किसी दिशा-परिवर्तन के चलना एकसमान गति (Uniform motion) कहलाता है।"
+            },
+            {
+                e: "A car starts from rest and gradually increases its speed. Which of the following best describes its distance-time graph?",
+                h: "एक कार विराम अवस्था से चलना शुरू करती है और धीरे-धीरे अपनी चाल बढ़ाती है। निम्नलिखित में से कौन-सा, इसके दूरी-समय ग्राफ का सर्वोत्तम वर्णन करता है?",
+                oEn: [
+                    "A horizontal line starting from the origin",
+                    "A curve starting from the origin with decreasing slope",
+                    "A straight line with constant slope starting from the origin",
+                    "A curve starting from the origin with increasing slope"
+                ],
+                oHi: [
+                    "मूल-बिंदु से आरंभ होने वाली क्षैतिज रेखा",
+                    "घटती ढाल के साथ मूल-बिंदु से आरंभ होने वाला वक्र",
+                    "मूल-बिंदु से आरंभ होने वाली तथा नियत ढाल वाली सरल रेखा",
+                    "बढ़ती ढाल के साथ मूल-बिंदु से आरंभ होने वाला वक्र"
+                ],
+                a: 3,
+                sE: "Increasing speed means the slope of the distance-time graph (which equals speed) is increasing over time, yielding a curve with increasing slope.",
+                sH: "चाल बढ़ने के कारण दूरी-समय ग्राफ की ढाल समय के साथ बढ़ती जाती है, जिससे बढ़ती ढाल वाला वक्र बनता है।"
+            },
+            {
+                e: "What is required to fully describe the displacement of a moving body?",
+                h: "किसी गतिमान पिंड के विस्थापन का पूर्ण वर्णन करने के लिए क्या आवश्यक है?",
+                oEn: ["Position at the origin", "Only direction", "Only magnitude", "Both magnitude and direction"],
+                oHi: ["मूल बिंदु पर स्थिति", "केवल दिशा", "केवल परिमाण", "परिमाण और दिशा दोनों"],
+                a: 3,
+                sE: "Displacement is a vector quantity, so both magnitude and direction are required to fully define it.",
+                sH: "विस्थापन एक सदिश राशि है, अतः इसे पूर्णतः व्यक्त करने के लिए परिमाण और दिशा दोनों की आवश्यकता होती है।"
+            },
+            {
+                e: "If the velocity v of a body is expressed as v = at + bt², where a and b are constants, the dimensions of b are ____________.",
+                h: "यदि किसी पिंड के वेग v को v = at + bt² के रूप में व्यक्त किया जाता है, जहाँ a और b स्थिरांक हैं, तो b की विमाएँ ____________ होंगी।",
+                oEn: ["[M⁰ L T⁻¹]", "[M⁰ L T⁻²]", "[M⁰ L² T⁻²]", "[M⁰ L T⁻³]"],
+                oHi: ["[M⁰ L T⁻¹]", "[M⁰ L T⁻²]", "[M⁰ L² T⁻²]", "[M⁰ L T⁻³]"],
+                a: 3,
+                sE: "By principle of dimensional homogeneity: [bt²] = [v] => [b] * T² = L T⁻¹ => [b] = L T⁻³ = [M⁰ L T⁻³].",
+                sH: "विमीय समांगता के सिद्धांत से: [bt²] = [v] => [b] * T² = L T⁻¹ => [b] = [M⁰ L T⁻³]."
+            },
+            {
+                e: "A ball initially at rest is dropped from a height and takes 5 seconds to reach the ground. What is the average speed during its fall? (g = 10 m/s²)",
+                h: "प्रारंभ में विरामावस्था में स्थित एक गेंद को जब एक ऊँचाई से गिराया जाता है, तो पृथ्वी की सतह तक पहुँचने में उसे 5 सेकंड लगते हैं। पतन के दौरान इसकी औसत चाल क्या है? (g = 10 m/s²)",
+                oEn: ["50 m/s", "25 m/s", "20 m/s", "10 m/s"],
+                oHi: ["50 m/s", "25 m/s", "20 m/s", "10 m/s"],
+                a: 1,
+                sE: "Total height h = 0.5 * g * t² = 0.5 * 10 * 25 = 125 m. Average speed = Total distance / Total time = 125 m / 5 s = 25 m/s (or simply (u + v)/2 = (0 + 50)/2 = 25 m/s).",
+                sH: "कुल ऊँचाई h = ½ * 10 * 5² = 125 m। औसत चाल = कुल दूरी / कुल समय = 125 / 5 = 25 m/s।"
+            },
+            {
+                e: "Which of the following does NOT define the motion of a pendulum swinging back and forth?",
+                h: "निम्नलिखित में से कौन-सा विकल्प इधर-उधर दोलन करते हुए लोलक की गति को परिभाषित नहीं करता है?",
+                oEn: [
+                    "The pendulum exhibits accelerated motion",
+                    "The pendulum exhibits uniform motion",
+                    "The pendulum exhibits non-uniform motion",
+                    "The pendulum exhibits periodic motion"
+                ],
+                oHi: [
+                    "लोलक त्वरित गति प्रदर्शित करता है",
+                    "लोलक एकसमान दोलन गति प्रदर्शित करता है",
+                    "लोलक असमान दोलन गति प्रदर्शित करता है",
+                    "लोलक आवर्ती गति प्रदर्शित करता है"
+                ],
+                a: 1,
+                sE: "A swinging pendulum constantly accelerates and decelerates, changing its speed and direction continuously. Thus, it does NOT exhibit uniform motion.",
+                sH: "लोलक की चाल और दिशा लगातार बदलती रहती है, अतः यह एकसमान गति (Uniform motion) नहीं हो सकती।"
+            },
+            {
+                e: "In the context of uniform circular motion, which of the following examples from everyday life best illustrates this concept?",
+                h: "एकसमान वृत्तीय गति के संदर्भ में, दैनिक जीवन का निम्नलिखित में से कौन-सा उदाहरण इस अवधारणा को सर्वोत्तम रूप से स्पष्ट करता है?",
+                oEn: [
+                    "A satellite revolving around the Earth at a fixed speed in a circular orbit",
+                    "A car moving with changing speed along a circular track",
+                    "A pendulum bob swinging to and fro",
+                    "A person walking randomly in a park"
+                ],
+                oHi: [
+                    "एक वृत्तीय कक्षा में निश्चित चाल से पृथ्वी के चारों ओर परिक्रमा करता हुआ उपग्रह",
+                    "एक वृत्ताकार पथ पर परिवर्ती चाल से गतिमान कार",
+                    "दोलन करता हुआ सरल लोलक का गोलक",
+                    "पार्क में यादृच्छिक रूप से भ्रमण करता हुआ एक व्यक्ति"
+                ],
+                a: 0,
+                sE: "A satellite orbiting Earth in a circular orbit at constant speed perfectly exemplifies uniform circular motion.",
+                sH: "वृत्ताकार कक्षा में निश्चित चाल से पृथ्वी का चक्कर काटता उपग्रह एकसमान वृत्तीय गति का सटीक उदाहरण है।"
+            },
+            {
+                e: "A car travels 120 meters north in 10 seconds and then instantly returns to its original position in the next 10 seconds. Which statement best describes the car's average velocity for the entire trip?",
+                h: "एक कार 10 सेकंड में उत्तर दिशा में 120 मीटर की दूरी तय करती है और फिर अगले ही 10 सेकंड में तुरंत अपनी प्रारंभिक स्थिति पर वापस लौट आती है। निम्न में से कौन-सा कथन पूरी यात्रा के लिए कार के औसत वेग का सबसे सटीक वर्णन करता है?",
+                oEn: [
+                    "The average velocity is 12 m/s because the car covered 120 m in 10 seconds.",
+                    "The average velocity is 6 m/s because the total distance is 240 m in 20 seconds.",
+                    "The average velocity is zero because the displacement is zero.",
+                    "The average velocity is 12 m/s because the total time is 10 seconds."
+                ],
+                oHi: [
+                    "औसत वेग 12 मीटर/सेकंड है क्योंकि कार ने 10 सेकंड में 120 मीटर की दूरी तय की।",
+                    "औसत वेग 6 मीटर/सेकंड है क्योंकि 20 सेकंड में कुल दूरी 240 मीटर है।",
+                    "औसत वेग शून्य है क्योंकि विस्थापन शून्य है।",
+                    "औसत वेग 12 मीटर/सेकंड है क्योंकि कुल समय 10 सेकंड है।"
+                ],
+                a: 2,
+                sE: "Returning to the initial position means total displacement = 0. Therefore, average velocity = 0 / 20 = 0 m/s.",
+                sH: "प्रारंभिक स्थिति पर वापस लौटने के कारण कुल विस्थापन शून्य है, अतः औसत वेग भी शून्य होगा।"
+            },
+            {
+                e: "A bus moves from one end A to the other end B of a straight 1000 m road in 100 s and then turns around and moves 500 m back to point C in another 100 s. What will be the average velocity (in m/s) and the type of motion of the bus in going from point A to point C?",
+                h: "एक बस एक सीधी 1000 m लंबी सड़क के एक छोर A से दूसरे छोर B तक 100 s में जाती है और फिर वापस मुड़कर अगले 100 s में 500 m पीछे बिंदु C पर आती है। बिंदु A से बिंदु C तक जाने में बस का औसत वेग (m/s में) और गति का प्रकार क्या होगा?",
+                oEn: [
+                    "0.4 m/s and Non-Uniform Motion",
+                    "0.4 m/s and Uniform Motion",
+                    "2.5 m/s and Non-Uniform Motion",
+                    "2.5 m/s and Uniform Motion"
+                ],
+                oHi: [
+                    "0.4 m/s और असमान गति (Non-Uniform Motion)",
+                    "0.4 m/s और समान गति (Uniform Motion)",
+                    "2.5 m/s और असमान गति (Non-Uniform Motion)",
+                    "2.5 m/s और समान गति (Uniform Motion)"
+                ],
+                a: 2,
+                sE: "Net displacement from A to C = 1000 m - 500 m = 500 m. Total time = 100 s + 100 s = 200 s. Average velocity = 500 / 200 = 2.5 m/s. Since the bus changes direction and speed varies, the motion is non-uniform.",
+                sH: "कुल विस्थापन = 1000 - 500 = 500 m। कुल समय = 100 + 100 = 200 s। औसत वेग = 500 / 200 = 2.5 m/s, और दिशा बदलने के कारण यह असमान गति है।"
+            },
+            {
+                e: "An object moving at a speed of 25 m/s is brought to a state of rest in 5 seconds. Therefore, the final velocity is _________.",
+                h: "25 m/s की चाल से गतिमान वस्तु को 5 सेकंड में विराम की अवस्था में लाया जाता है। इसलिए, अंतिम वेग _________ है।",
+                oEn: ["5 m/s", "25 m/s", "0 m/s", "20 m/s"],
+                oHi: ["5 m/s", "25 m/s", "0 m/s", "20 m/s"],
+                a: 2,
+                sE: "State of rest means the object stops completely, so final velocity v = 0 m/s.",
+                sH: "विरामावस्था (state of rest) का अर्थ है कि वस्तु पूर्णतः रुक जाती है, अतः अंतिम वेग शून्य (0 m/s) है।"
+            },
+            {
+                e: "For uniform motion, a distance-time graph must pass through the ____.",
+                h: "एकसमान गति के लिए, दूरी-समय आलेख ______ से होकर गुजरना चाहिए।",
+                oEn: ["Any point", "Origin", "Only (1,1)", "(0,1)"],
+                oHi: ["कोई भी बिंदु", "मूलबिंदु", "केवल (1,1)", "(0,1)"],
+                a: 1,
+                sE: "When time t = 0, distance s = 0, so the graph must pass through the origin (0, 0).",
+                sH: "शुरुआती समय t = 0 पर दूरी s = 0 होती है, इसलिए ग्राफ मूलबिंदु (Origin: 0, 0) से गुजरता है।"
+            },
+            {
+                e: "Two bodies A and B are travelling in uniform motion, the slope of the distance-time graph of body A is greater than the slope of the distance-time graph of body B. Which of the following statements is correct?",
+                h: "दो पिंड A और B एकसमान गति में यात्रा कर रहे हैं, पिंड A के दूरी-समय आलेख का ढलान पिंड B के दूरी-समय आलेख के ढलान से अधिक है। निम्नलिखित में से कौन सा कथन सही है?",
+                oEn: [
+                    "The speed of body A is greater than speed of body B.",
+                    "The speed of body A is less than the speed of body B.",
+                    "The speed of body A is equal to the speed of body B.",
+                    "The acceleration of body A is greater than the acceleration of body B."
+                ],
+                oHi: [
+                    "पिंड A की चाल पिंड B की चाल से अधिक है।",
+                    "पिंड A की चाल पिंड B की चाल से कम है।",
+                    "पिंड A की चाल पिंड B की चाल के बराबर है।",
+                    "पिंड A का त्वरण पिंड B के त्वरण से अधिक है।"
+                ],
+                a: 0,
+                sE: "Slope of distance-time graph represents speed. Greater slope indicates greater speed, hence speed of A > speed of B.",
+                sH: "दूरी-समय आलेख की ढलान चाल को दर्शाती है। A की ढलान अधिक है, अतः पिंड A की चाल पिंड B की चाल से अधिक है।"
+            },
+            {
+                e: "The motion of an athlete running along a circular path with constant speed is an example of accelerated motion because __________.",
+                h: "एक वृत्ताकार पथ पर एक समान चाल से दौड़ते हुए एक एथलीट की गति त्वरित गति का एक उदाहरण है क्योंकि __________।",
+                oEn: [
+                    "The athlete's speed is increasing",
+                    "The direction of motion changes continuously",
+                    "The mass of the athlete is constant",
+                    "A constant external force is applied"
+                ],
+                oHi: [
+                    "एथलीट की चाल बढ़ रही है",
+                    "गति की दिशा लगातार बदलती रहती है",
+                    "एथलीट का द्रव्यमान स्थिर है",
+                    "एक स्थिर बाहरी बल लगाया जाता है"
+                ],
+                a: 1,
+                sE: "Acceleration is the rate of change of velocity. Since direction changes continuously along a circular path, velocity changes, producing accelerated motion.",
+                sH: "वृत्ताकार पथ पर गति की दिशा प्रत्येक क्षण बदलने के कारण वेग बदलता है, जिससे यह त्वरित गति कहलाती है।"
+            },
+            {
+                e: "Which of the following situations shows zero acceleration?",
+                h: "निम्नलिखित में से कौन सी स्थिति शून्य त्वरण दर्शाती है?",
+                oEn: [
+                    "A car moving with constant speed on a straight road",
+                    "A ball thrown upward",
+                    "A train speeding up",
+                    "An aeroplane taking off"
+                ],
+                oHi: [
+                    "एक सीधी सड़क पर स्थिर चाल से चलती हुई कार",
+                    "ऊपर की ओर फेंकी गई एक गेंद",
+                    "एक ट्रेन की गति तेज हो रही है",
+                    "एक हवाई जहाज उड़ान भर रहा है"
+                ],
+                a: 0,
+                sE: "A car moving at constant speed along a straight road has both constant speed and direction, so acceleration = 0.",
+                sH: "सीधी सड़क पर स्थिर चाल से चलने पर चाल और दिशा दोनों नियत रहते हैं, इसलिए त्वरण शून्य होता है।"
+            },
+            {
+                e: "When applying the equations of motion to an object moving under gravitational force and thrown vertically upwards, the acceleration (a) should be taken as ______.",
+                h: "जब किसी वस्तु पर गुरुत्वाकर्षण बल के अधीन गतिमान और लंबवत ऊपर की ओर फेंकी गई वस्तु पर गति के समीकरण लागू करते हैं, तो त्वरण (a) को ______ के रूप में लिया जाना चाहिए।",
+                oEn: [
+                    "Negative, as it opposes the initial motion.",
+                    "Positive, as gravity is constant.",
+                    "Positive, as it is in the direction of velocity.",
+                    "Independent of the direction of motion."
+                ],
+                oHi: [
+                    "ऋणात्मक, क्योंकि यह प्रारंभिक गति का विरोध करता है।",
+                    "धनात्मक, क्योंकि गुरुत्वाकर्षण स्थिर है।",
+                    "धनात्मक, क्योंकि यह वेग की दिशा में है।",
+                    "गति की दिशा से स्वतंत्र।"
+                ],
+                a: 0,
+                sE: "When thrown upward, acceleration due to gravity acts downward opposing velocity, so a = -g (negative).",
+                sH: "ऊपर फेंकने पर गुरुत्वीय त्वरण नीचे की ओर कार्य करता है (प्रारंभिक गति के विपरीत), इसलिए इसे ऋणात्मक (-g) लिया जाता है।"
+            },
+            {
+                e: "Which of the following is/are NOT true about the distance-time graph for a body moving in uniform motion?\n(i) The slope of the distance-time graph gives the acceleration of the body.\n(ii) The lesser the slope of the graph the slower the body is moving.\n(iii) The area under this graph gives the speed of the body.",
+                h: "एक समान गति में गतिमान पिंड के लिए दूरी-समय आलेख के बारे में निम्नलिखित में से कौन-सा/से सत्य नहीं है/हैं?\n(i) दूरी-समय आलेख का ढलान पिंड का त्वरण देता है।\n(ii) आलेख का ढलान जितना कम होगा, पिंड उतनी ही धीमी गति से चलेगा।\n(iii) इस आलेख के अंतर्गत का क्षेत्रफल पिंड की चाल देता है।",
+                oEn: ["Only (iii)", "Only (ii)", "Both (i) and (ii)", "Both (i) and (iii)"],
+                oHi: ["केवल (iii)", "केवल (ii)", "दोनों (i) और (ii)", "दोनों (i) और (iii)"],
+                a: 3,
+                sE: "Slope of s-t graph gives speed (not acceleration), making (i) false. Area under s-t graph has no physical meaning, making (iii) false. Statement (ii) is true. Hence, (i) and (iii) are not true.",
+                sH: "दूरी-समय ग्राफ का ढाल चाल देता है (त्वरण नहीं, इसलिए i गलत है) और इसका क्षेत्रफल कोई भौतिक राशि नहीं दर्शाता (iii गलत है)। अतः (i) और (iii) दोनों असत्य हैं।"
+            },
+            {
+                e: "Free fall corresponds to which type of motion?",
+                h: "मुक्त पतन किस प्रकार की गति से मेल खाता है?",
+                oEn: ["Uniformly accelerated motion", "Uniform motion", "Non-uniform motion", "Periodic motion"],
+                oHi: ["एक समान त्वरित गति", "एक समान गति", "गैर-एक समान गति", "आवधिक गति"],
+                a: 0,
+                sE: "Under gravity, an object in free fall experiences a constant acceleration g = 9.8 m/s², which is uniformly accelerated motion.",
+                sH: "मुक्त रूप से गिरती वस्तु पर नियत गुरुत्वीय त्वरण (g = 9.8 m/s²) कार्य करता है, अतः यह एकसमान त्वरित गति है।"
+            },
+            {
+                e: "A car moving along a straight path slows down and stops. The car is under which type of motion?",
+                h: "एक सीधी राह पर चलती हुई कार धीमी होकर रुक जाती है। कार किस प्रकार की गति में है?",
+                oEn: ["Uniform motion", "Non-uniform motion", "Circular motion", "Periodic motion"],
+                oHi: ["एकसमान गति", "असमान गति", "वृत्ताकार गति", "आवर्ती गति"],
+                a: 1,
+                sE: "Slowing down implies non-zero deceleration, meaning velocity is not constant. Therefore, the motion is non-uniform.",
+                sH: "कार की चाल घट रही है, जिसका अर्थ है कि वेग स्थिर नहीं है। अतः यह असमान गति (Non-uniform motion) है।"
+            },
+            {
+                e: "In a v-t graph for uniform acceleration, which of the following is NOT correct?",
+                h: "एकसमान त्वरण के लिए v-t ग्राफ में, निम्नलिखित में से कौन सा सही नहीं है?",
+                oEn: [
+                    "Positive slope indicates acceleration.",
+                    "The area under the v-t graph gives displacement.",
+                    "The slope of the v-t graph is constant.",
+                    "The v-t graph is always curved."
+                ],
+                oHi: [
+                    "धनात्मक ढलान त्वरण को इंगित करता है।",
+                    "v-t ग्राफ के अंतर्गत का क्षेत्रफल विस्थापन देता है।",
+                    "v-t ग्राफ की ढलान स्थिर होती है।",
+                    "v-t ग्राफ हमेशा घुमावदार होता है।"
+                ],
+                a: 3,
+                sE: "For uniform acceleration, the slope is constant, which means the v-t graph is a straight line, NOT curved.",
+                sH: "एकसमान त्वरण में त्वरण स्थिर होने के कारण v-t ग्राफ हमेशा एक सीधी रेखा होती है, घुमावदार (curved) नहीं।"
+            },
+            {
+                e: "In uniform circular motion, the speed of the body:",
+                h: "एकसमान वृत्तीय गति में, वस्तु की चाल:",
+                oEn: ["depends on the radius only", "changes continuously", "becomes zero at every point", "remains constant"],
+                oHi: ["केवल त्रिज्या पर निर्भर करती है", "लगातार बदलती रहती है", "हर बिंदु पर शून्य हो जाती है", "स्थिर रहती है"],
+                a: 3,
+                sE: "By definition, in uniform circular motion, the speed (scalar magnitude) remains constant while direction changes.",
+                sH: "एकसमान वृत्तीय गति की परिभाषा के अनुसार वस्तु की चाल (speed) सदैव स्थिर (constant) रहती है।"
+            },
+            {
+                e: "Which of the following statements about acceleration is correct?",
+                h: "त्वरण के बारे में निम्नलिखित में से कौन-सा कथन सही है?",
+                oEn: [
+                    "Acceleration is negative when it acts opposite to the direction of velocity.",
+                    "Acceleration is always positive regardless of its direction.",
+                    "The SI unit of acceleration is m/s.",
+                    "Acceleration is positive when it acts opposite to the direction of velocity."
+                ],
+                oHi: [
+                    "त्वरण तब ऋणात्मक होता है जब यह वेग की दिशा के विपरीत कार्य करता है।",
+                    "दिशा चाहे जो भी हो, त्वरण सदैव धनात्मक होता है।",
+                    "त्वरण की SI इकाई m/s है।",
+                    "त्वरण तब धनात्मक होता है जब वह वेग की दिशा के विपरीत होता है।"
+                ],
+                a: 0,
+                sE: "When acceleration acts in the opposite direction to velocity (slowing down the object), it is negative (retardation/deceleration).",
+                sH: "जब त्वरण वेग की गति के विपरीत दिशा में लगता है (जिससे चाल घटती है), तो उसे ऋणात्मक त्वरण (मंदन) कहते हैं।"
+            },
+            {
+                e: "Which of the following shows the correct formula for acceleration?",
+                h: "निम्नलिखित में से कौन त्वरण का सही सूत्र दर्शाता है?",
+                oEn: [
+                    "acceleration = (change in velocity) / (time taken)",
+                    "acceleration = force × mass",
+                    "acceleration = change in velocity × time",
+                    "acceleration = distance / time"
+                ],
+                oHi: [
+                    "त्वरण = (वेग में परिवर्तन) / (लिया गया समय)",
+                    "त्वरण = बल × द्रव्यमान",
+                    "त्वरण = वेग में परिवर्तन × समय",
+                    "त्वरण = दूरी / समय"
+                ],
+                a: 0,
+                sE: "Acceleration is defined as the change in velocity divided by the time interval (a = Δv / t).",
+                sH: "त्वरण = वेग में परिवर्तन / समय अंतराल (a = (v - u) / t)।"
+            },
+            {
+                e: "Which of the following describes the nature of average speed?",
+                h: "निम्नलिखित में से कौन औसत चाल की प्रकृति का वर्णन करता है?",
+                oEn: [
+                    "It can be negative.",
+                    "It is a scalar quantity (only magnitude).",
+                    "It is always equal to or less than the average velocity.",
+                    "It is a vector quantity (magnitude and direction)."
+                ],
+                oHi: [
+                    "यह ऋणात्मक हो सकती है।",
+                    "यह एक अदिश राशि है (केवल परिमाण)।",
+                    "यह हमेशा औसत वेग के बराबर या उससे कम होती है।",
+                    "यह एक सदिश राशि है (परिमाण और दिशा)।"
+                ],
+                a: 1,
+                sE: "Average speed is distance divided by time. Since distance is scalar, average speed is a scalar quantity (cannot be negative).",
+                sH: "औसत चाल एक अदिश राशि (Scalar quantity) है जिसमें केवल परिमाण होता है और यह कभी ऋणात्मक नहीं हो सकती।"
+            },
+            {
+                e: "When an object moves along a straight path but its speed keeps changing, how can we describe its rate of motion?",
+                h: "जब कोई वस्तु एक सीधे पथ पर चलती है लेकिन उसकी चाल बदलती रहती है, तो हम उसकी गति की दर का वर्णन कैसे कर सकते हैं?",
+                oEn: [
+                    "By checking how far it goes every second",
+                    "By measuring its constant velocity",
+                    "By using the total time over the average velocity",
+                    "By using average velocity over the total time"
+                ],
+                oHi: [
+                    "यह जाँच कर कि वह हर सेकंड कितनी दूर जाती है",
+                    "उसके स्थिर वेग को मापकर",
+                    "औसत वेग पर कुल समय का उपयोग करके",
+                    "कुल समय पर औसत वेग का उपयोग करके"
+                ],
+                a: 0,
+                sE: "When speed keeps changing, observing instantaneous changes (such as how far it travels in each individual second) describes the rate of motion.",
+                sH: "परिवर्ती चाल में प्रत्येक सेकंड में तय की गई दूरी का विश्लेषण करके गति की दर का सटीक प्रेक्षण किया जाता है।"
+            },
+            {
+                e: "The motion of a satellite orbiting the Earth in a circular path at constant speed is a classic example of uniform circular motion. What property of this motion prevents its acceleration from being zero?",
+                h: "एक उपग्रह की पृथ्वी की परिक्रमा एक वृत्ताकार पथ पर स्थिर गति से एकसमान वृत्तीय गति का उत्कृष्ट उदाहरण है। इस गति का कौन सा गुण इसके त्वरण को शून्य होने से रोकता है?",
+                oEn: [
+                    "The direction of motion changes continuously at every point, meaning the velocity is changing.",
+                    "The total mechanical energy is conserved, necessitating acceleration.",
+                    "The speed is too high for the gravitational force to sustain a constant velocity.",
+                    "The object's mass continually changes due to orbital dynamics."
+                ],
+                oHi: [
+                    "गति की दिशा लगातार हर बिंदु पर बदलती है, जिसका अर्थ है कि वेग बदल रहा है।",
+                    "कुल यांत्रिक ऊर्जा संरक्षित है, जिसके लिए त्वरण आवश्यक है।",
+                    "गुरुत्वाकर्षण बल के लिए स्थिर वेग बनाए रखने के लिए गति बहुत अधिक है।",
+                    "कक्षीय गतिशीलता के कारण वस्तु का द्रव्यमान लगातार बदलता रहता है।"
+                ],
+                a: 0,
+                sE: "Because the direction of the velocity vector is continuously changing, there is a continuous centripetal acceleration directed toward the center of the Earth.",
+                sH: "वृत्ताकार पथ में प्रत्येक बिंदु पर गति की दिशा बदलने से वेग बदलता है, जिससे अभिकेंद्रीय त्वरण उत्पन्न होता है और त्वरण शून्य नहीं हो सकता।"
+            },
+            {
+                e: "The motion of a freely falling body is an example of a:",
+                h: "मुक्त रूप से गिरते हुए पिंड की गति किसका उदाहरण है?",
+                oEn: [
+                    "uniformly accelerated motion",
+                    "uniform velocity motion",
+                    "uniform speed motion",
+                    "non-uniformly accelerated motion"
+                ],
+                oHi: [
+                    "एकसमान त्वरित गति",
+                    "एकसमान वेग गति",
+                    "एकसमान चाल गति",
+                    "असमान त्वरित गति"
+                ],
+                a: 0,
+                sE: "A freely falling body accelerates under constant gravity (g = 9.8 m/s²), which is uniformly accelerated motion.",
+                sH: "गुरुत्वाकर्षण के प्रभाव में स्वतंत्र रूप से गिरता हुआ पिंड एकसमान त्वरण (g) का अनुभव करता है।"
+            },
+            {
+                e: "Consider the motion of a rigid body which is pivoted or fixed in some way. The possible motion for such a system is best described by:",
+                h: "किसी भी तरह से घुमाए गए या स्थिर किए गए दृढ़ पिंड की गति पर विचार करें। इस तरह की प्रणाली के लिए संभव गति को सबसे अच्छी तरह से किसके द्वारा वर्णित किया गया है?",
+                oEn: ["circular motion", "combination of rotation and translation", "translation", "rotation"],
+                oHi: ["वृत्ताकार गति", "घूर्णन और स्थानांतरण का संयोजन", "स्थानांतरण", "घूर्णन"],
+                a: 3,
+                sE: "A rigid body that is pivoted/fixed at a point or axis can only undergo rotational motion.",
+                sH: "जब कोई दृढ़ पिंड किसी बिंदु या अक्ष पर कीलकित (pivoted) या स्थिर होता है, तो वह केवल घूर्णन गति (Rotation) कर सकता है।"
+            }
+        ];
+
+        const state = {
+            current: 0,
+            answers: new Array(QUESTIONS.length).fill(null),
+            locked: new Array(QUESTIONS.length).fill(false),
+            mode: 'test',
+            lang: 'hi',
+            startTime: null,
+            timerInterval: null,
+            elapsed: 0
+        };
+
+        function $(id) { return document.getElementById(id); }
+
+        function toast(msg) {
+            const t = $('toast');
+            $('toastText').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            return String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+        }
+
+        function startApp(mode) {
+            state.mode = mode;
+            $('startScreen').classList.add('hidden');
+            $('quizApp').classList.remove('hidden');
+            state.startTime = Date.now();
+            state.timerInterval = setInterval(() => {
+                state.elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+                $('timerText').textContent = formatTime(state.elapsed);
+            }, 1000);
+            renderQuestion();
+            buildPalette();
+        }
+
+        function toggleLang() {
+            state.lang = state.lang === 'en' ? 'hi' : 'en';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const i = state.current;
+            const q = QUESTIONS[i];
+            const isQuiz = state.mode === 'quiz';
+            const locked = state.locked[i];
+            const userAns = state.answers[i];
+            const qTxt = state.lang === 'en' ? q.e : q.h;
+            const opts = state.lang === 'en' ? q.oEn : q.oHi;
+
+            let optsHtml = '';
+            opts.forEach((opt, idx) => {
+                let cls = '', tag = '';
+                if (isQuiz && locked) {
+                    if (idx === q.a) {
+                        cls = 'correct';
+                        tag = '<span class="opt-tag">Correct</span>';
+                    }
+                    if (userAns === idx && idx !== q.a) {
+                        cls = 'wrong';
+                        tag = '<span class="opt-tag">Your Ans</span>';
+                    }
+                } else if (userAns === idx) {
+                    cls = 'selected';
+                }
+                optsHtml += `
+                    <div class="opt ${cls} ${locked ? 'locked' : ''}" onclick="selectOption(${idx})">
+                        <div class="opt-letter">${String.fromCharCode(65 + idx)}</div>
+                        <div class="opt-text">${opt}</div>
+                        ${tag}
+                    </div>
+                `;
+            });
+
+            const solTxt = state.lang === 'en' ? q.sE : q.sH;
+            let solHtml = (isQuiz && locked) ? `
+                <div class="sol-box">
+                    <div class="sol-head"><i class="fas fa-lightbulb"></i> Explanation</div>
+                    <div>${solTxt}</div>
+                </div>
+            ` : '';
+
+            $('quizMain').innerHTML = `
+                <div class="q-card">
+                    <div class="q-top">
+                        <div class="q-num-badge">Question ${i + 1} of ${QUESTIONS.length}</div>
+                        <button class="lang-btn" onclick="toggleLang()">
+                            <i class="fas fa-language"></i> ${state.lang === 'en' ? 'हिन्दी' : 'English'}
+                        </button>
+                    </div>
+                    <div class="q-text">${qTxt}</div>
+                    <div class="opts">${optsHtml}</div>
+                    ${solHtml}
+                </div>
+            `;
+
+            $('prevBtn').disabled = i === 0;
+            $('nextLabel').textContent = i === QUESTIONS.length - 1 ? 'Finish' : 'Next';
+            updatePaletteGrid();
+        }
+
+        function selectOption(idx) {
+            if (state.mode === 'quiz' && state.locked[state.current]) return;
+            state.answers[state.current] = idx;
+            if (state.mode === 'quiz') {
+                state.locked[state.current] = true;
+                if (idx === QUESTIONS[state.current].a) {
+                    toast('Correct! 🎉');
+                } else {
+                    toast('Incorrect');
+                }
+            }
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (state.current > 0) {
+                state.current--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (state.current < QUESTIONS.length - 1) {
+                state.current++;
+                renderQuestion();
+            } else {
+                openSubmitModal();
+            }
+        }
+
+        function buildPalette() {
+            const grid = $('paletteGrid');
+            grid.innerHTML = '';
+            QUESTIONS.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'pal-btn';
+                btn.id = 'pal-' + i;
+                btn.textContent = i + 1;
+                btn.onclick = () => {
+                    state.current = i;
+                    closePalette();
+                    renderQuestion();
+                };
+                grid.appendChild(btn);
+            });
+            updatePaletteGrid();
+        }
+
+        function updatePaletteGrid() {
+            QUESTIONS.forEach((_, i) => {
+                const btn = $('pal-' + i);
+                if (!btn) return;
+                btn.className = 'pal-btn';
+                if (i === state.current) btn.classList.add('current');
+                if (state.answers[i] !== null) btn.classList.add('answered');
+            });
+        }
+
+        function openPalette() {
+            $('paletteDrawer').classList.add('open');$('paletteOverlay').classList.add('open');
+        }
+
+        function closePalette() {
+            $('paletteDrawer').classList.remove('open');$('paletteOverlay').classList.remove('open');
+        }
+
+        function openSubmitModal() {
+            const ans = state.answers.filter(a => a !== null).length;
+            $('modalAttempted').textContent = ans;
+            $('modalUnattempted').textContent = QUESTIONS.length - ans;
+            $('submitModal').classList.add('open');
+        }
+
+        function closeSubmitModal() {
+            $('submitModal').classList.remove('open');
+        }
+
+        function confirmSubmit() {
+            closeSubmitModal();
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            let correct = 0, wrong = 0;
+            state.answers.forEach((ans, i) => {
+                if (ans !== null) {
+                    if (ans === QUESTIONS[i].a) correct++;
+                    else wrong++;
+                }
+            });
+            $('resultsInner').innerHTML = `
+                <h2>Test Completed!</h2>
+                <p style="color:var(--text-muted);margin:8px 0;">Total Time: ${formatTime(state.elapsed)}</p>
+                <div class="res-score-card">
+                    <div class="res-score-val">${correct} / ${QUESTIONS.length}</div>
+                    <div>Score</div>
+                </div>
+                <div class="res-grid">
+                    <div class="res-item"><div class="res-item-val" style="color:var(--green)">${correct}</div><div>Correct</div></div>
+                    <div class="res-item"><div class="res-item-val" style="color:var(--red)">${wrong}</div><div>Wrong</div></div>
+                </div>
+                <button class="modal-btn confirm" onclick="location.reload()">Re-attempt</button>
+            `;
+            $('resultsScreen').classList.add('open');
+        }
+    </script>
+</body>
+</html>
